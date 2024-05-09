@@ -413,6 +413,6 @@ obj/
 
 # ignore .vcxproj files
 *.vcxproj.users
-*.vcxproj.fiters
+*.vcxproj.filters
 *.vcxproj
 
