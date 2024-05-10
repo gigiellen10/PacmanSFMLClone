@@ -14,15 +14,21 @@ File purpose: include #define constants and common SFML libraries needed through
 #define MAP_WIDTH 23 // cols of game map array
 #define MAP_HEIGHT 11 // rows of game map array
 
-#define COLLISION_RAY_H 60 // universal length of HORISONTAL ray for pacman map collisions
+#define COLLISION_RAY 60 // universal length of HORISONTAL ray for pacman map collisions
 
 #define NUM_INTERSECTIONS 36 // number of intersections where directional decision required for entities
 
 #define PAC_SPAWN_X 1035
 #define PAC_SPAWN_Y 855
 
-#define ghostHitboxWidth 80
-#define ghostHitboxHeight 80
+// ghost spawn coordinates
+#define GHOST_SPAWN_X_O 855 // orange
+#define GHOST_SPAWN_X_R 945 // red
+#define GHOST_SPAWN_X_P 1035 // pink
+#define GHOST_SPAWN_X_B 1125 // blue
+
+#define GHOST_SPAWN_Y 495 
+
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
@@ -49,6 +55,7 @@ using sf::Font;
 using sf::FloatRect;
 using sf::Sprite;
 using sf::Texture;
+using sf::RectangleShape;
 
 // commonly used directions that entities can travel along map
 namespace Direction

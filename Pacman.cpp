@@ -4,10 +4,8 @@ File: this file contains the function definitions for the pacman class */
 
 #include "Pacman.hpp"
 
-// checks for up, down, left, right arrows pressed...or WASD equivalently for left handed peeps, #inclusion !!
-// moves in corresponding direction as long as no collisions detected
-
-void Pacman::movePacman(Time dt, GameMap &theMap)
+// overridden pure virtual function from Character A.B.C.
+void Pacman::movement(Time dt, GameMap &theMap)
 {
 
 	// determine if pacman on an intersection
@@ -102,19 +100,6 @@ void Pacman::movePacman(Time dt, GameMap &theMap)
 	
 }
 
-bool Pacman::isWallCollision(GameMap& theMap)
-{
-	int RayCol = getColIndex(mRay.getEnd()), // get row and col that ray ends in
-		RayRow = getRowIndex(mRay.getEnd());
-
-	if (theMap[RayRow][RayCol].getIsPassable() == 1) // we've almost hit a wall
-	{
-		return true;
-	}
-
-	return false;
-}
-
 
 void Pacman::travelMiddlePath()
 {
@@ -138,59 +123,6 @@ void Pacman::travelMiddlePath()
 	}
 
 }
-
-// shoots a ray from the object origin to edge of obj global bounds - computes the two points of ray based on origin and size of object
-void Pacman::computeRayBounds()
-{
-	Vector2f endPt;
-	float xPos = this->getPosition().x,
-		yPos = this->getPosition().y;
-
-
-	// calculate where to shoot ray depending on direction currently travelling
-
-	if (mDirection == Direction::UP) // compute endpt upwards
-	{
-		endPt = Vector2f(xPos, yPos - COLLISION_RAY_H);
-	}
-	else if (mDirection == Direction::RIGHT) // compute endpt right
-	{
-		endPt = Vector2f(xPos + COLLISION_RAY_H, yPos);
-	}
-	else if (mDirection == Direction::DOWN) // compute endpt downwards
-	{
-		endPt = Vector2f(xPos, yPos + COLLISION_RAY_H);
-	}
-	else if (mDirection == Direction::LEFT) // compute endpt left
-	{
-		endPt = Vector2f(xPos - COLLISION_RAY_H, yPos);
-	}
-	
-	// set start and endpt of ray
-	mRay.setStart(this->getPosition()); // ray should shoot from pacman origin (center of circle)
-	mRay.setEnd(endPt);
-
-	
-}
-
-// determines if pacman is currently on an intersection point
-bool Pacman::isOnIntersection(GameMap& theMap) const
-{
-	// determine pacman current position
-	int PacCol = getColIndex(this->getPosition()),
-		PacRow = getRowIndex(this->getPosition());
-		
-	// if pacman is in an intersection cell 
-	if (theMap[PacRow][PacCol].getIsIntersection() == true)
-	{
-		return true;
-	}
-
-	return false;
-
-
-}
-
 
 // evaluates possible paths that can be travelled depending on if the entity is 
 // on an intersection point. returns true for valid direction, false otherwise
@@ -243,28 +175,6 @@ bool Pacman::isValidDirection(bool onIntersection, const Vector2f desiredDirecti
 
 }
 
-// returns the row index of a position vector in the map array
-int getRowIndex(Vector2f pos)
-{
-	return ((int)(pos.y / CELL_SIZE));
-}
-
-// returns the col index of a position vector in the map array
-int getColIndex(Vector2f pos)
-{
-	return ((int)(pos.x / CELL_SIZE));
-}
-
-// used to recenter when he hits a corner/wall cell
-void Pacman::reCenter(Vector2f& direction)
-{
-	Vector2f currPos = this->getPosition();
-	int row = getRowIndex(currPos), col = getColIndex(currPos);
-	float newX = ((float)col * 90) + 45, newY = ((float)row * 90) + 45;
-
-	this->setPosition(newX, newY);
-
-}
 
 // alternates between 2 mouth states based on how many frames elapsed; adjusts texture to display accordingly
 void Pacman::animateMouth(int frameCounter)

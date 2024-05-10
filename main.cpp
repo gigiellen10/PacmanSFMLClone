@@ -1,31 +1,35 @@
-/* Programmer names: Genevieve Kochel, Luka, Jake
+/* Programmer name: Genevieve Kochel
 Date created: April 10th, 2024 
-Date last modified: April 23rd, 2024
-File purpose: this file contains main() and any #define constants and sfml includes */
-
+Date last modified: May 9th, 2024
+File purpose: this file contains main() */
 
 #include "Pacman.hpp"
-
+#include "Ghost.hpp"
 
 int main()
 {
 
-    
-    RenderWindow window(VideoMode(MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS), "Pacman!!");
+    RenderWindow window(VideoMode(MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS), "Genevieve's Pacman Clone!!");
     window.setFramerateLimit(60); // normalize the framrate to 60 fps
 
         bool isPeletEaten = false, isWon = false; 
         int frameCounter = 0; // incremented at every iteration of game loop (each frame) - used for animation
 
-        Texture mouthStates; // 3 different pacman mouth states for animation
-        mouthStates.loadFromFile("assets\\PacmanSprites.png");
+        Texture mouthStates,
+       tempGhostText; // 3 different pacman mouth states for animation
+
+        // ghost prison gate
+        RectangleShape gate(Vector2f(180.f, 15.f));
 
         Font scoreFont; // font for displaying score in top left corner
+        
+        mouthStates.loadFromFile("assets\\PacmanSprites.png"); // load pac mouth states
 
         Pacman pac(&mouthStates); // init pacman with mouth state texture
-
-        // init ghosts
-       
+        Ghost clyde(&tempGhostText, (float)GHOST_SPAWN_X_O, (float)GHOST_SPAWN_Y, Color::Yellow),
+            pinky(&tempGhostText, (float)GHOST_SPAWN_X_P, (float)GHOST_SPAWN_Y, Color::Magenta),
+            inky(&tempGhostText, (float)GHOST_SPAWN_X_B, (float)GHOST_SPAWN_Y, Color::Cyan),
+            blinky(&tempGhostText, (float)GHOST_SPAWN_X_R, (float)GHOST_SPAWN_Y, Color::Red);
 
         Clock deltaClock; // for calculating delta time
         Time deltaTime;
@@ -51,7 +55,6 @@ int main()
 
         // load score font from file
         scoreFont.loadFromFile("assets\\emulogic-font\\Emulogic-zrEw.ttf");
-        bool ghostsOutOfBox = false;
 
 
         /* LOOP THAT RUNS MAIN GAME */
@@ -71,7 +74,9 @@ int main()
             Time deltaTime = deltaClock.restart();
 
             // update state of characters and/or board
-            pac.movePacman(deltaTime, map);
+            gate.setPosition(900, 360);
+
+            pac.movement(deltaTime, map);
             pac.animateMouth(frameCounter); // switch between open/closed mouth as pac moves
 
             isPeletEaten = map.updatePelets(pac.getGlobalBounds()); // determine if pac collided with a pelet
@@ -80,12 +85,6 @@ int main()
             {
                 pac.setScore(pac.getScore() + 10);
             }
-
-            // update state of ghosts
-
-
-            // check for valid ghost placement, recenter if not
-
 
 
             // check if pacman has collided with a ghost
@@ -109,21 +108,19 @@ int main()
 
             // draw characters
             window.draw(pac);
+            window.draw(gate);
+            window.draw(pinky);
+            window.draw(inky);
+            window.draw(clyde);
+            window.draw(blinky);
 
             window.display();
 
             ++frameCounter; // increment # frames 
 
             // check if won or lost here and display end screen; get input if want to play again
-            if (!pac.getIsAlive() || pac.getScore() == 1090)
-            {
-                break;
-            }
+            
 
         }
-
-      
-
-    
     return 0;
 }
