@@ -23,7 +23,9 @@ public:
 
 	Vector2f& findTargetTile(Vector2f& pacTile, Vector2f &pacDir, Vector2f& blinkyPos); 
 
-	const Vector2f& calcDirVectorTile(const Vector2f& pacPos, const Vector2f& pacDir, const Vector2f& blinkyPos);
+	const Vector2f& calcInkyTarget(const Vector2f& pacPos, const Vector2f& pacDir, const Vector2f& blinkyPos);
+
+	Vector2f& findOptimalPath(Vector2f& targetPos, GameMap& theMap);
 
 private:
 	int mMode; // 1 - chase mode, 2 - scatter mode 

@@ -8,35 +8,34 @@ File purpose: contains the function definitions for the ghost class */
 void Ghost::movement(Time dt, GameMap& theMap, Vector2f& pacTile, Vector2f& pacDir, Vector2f& blinkyPos)
 {
 	bool isIntersection = this->isOnIntersection(theMap);
-	Vector2f targetCoords;
+	Vector2f targetCoords, newDir;
 
 	if (isIntersection)
 	{
 		// set new ray bounds 
 		this->computeRayBounds();
 
+		// evaluate target tile
+		targetCoords = findTargetTile(pacTile, pacDir, blinkyPos);
+
 		//  will hit a wall if continues, so recenter
 		if (isWallCollision(theMap))
 		{
 			// should pick a valid direction before moving further
 			this->reCenter();
-			/*mSpeed = 0.f; see what this looks like, if necessary */
+			/*mSpeed = 0.f; see what this looks like, if necessary IF ON TARGET TILE????? */
 		}
 
-		// evaluate target tile
-		targetCoords = findTargetTile(pacTile, pacDir, blinkyPos);
-
 		// find direction of shortest path to target tile
+		newDir = findOptimalPath(targetCoords, theMap); // pass in coordinates to minimize or maximize distance from 
 
 		// set ghost direction 
+		mDirection = newDir;
 	}
+
+	/*this->travelMiddlePath(); may need this? */
 	
-
-	
-
-	// move ghost to target tile 
-	// may need condition for if ghost already on target tile or has hit wall before reaching it, ex: pacman is not moving  
-
+	this->move(mSpeed * mDirection * dt.asSeconds());
 	
 }
 
@@ -57,7 +56,7 @@ Vector2f& Ghost::findTargetTile(Vector2f& pacTile, Vector2f& pacDir, Vector2f& b
 		}
 		else // AI type = 4, vector through offset tile and through blinky 
 		{
-			target = calcDirVectorTile(pacTile, pacDir, blinkyPos);
+			target = calcInkyTarget(pacTile, pacDir, blinkyPos);
 		}
 	}
 	else // mode = scatter
@@ -84,7 +83,7 @@ Vector2f& Ghost::findTargetTile(Vector2f& pacTile, Vector2f& pacDir, Vector2f& b
 	
 }
 
-const Vector2f& Ghost::calcDirVectorTile(const Vector2f& pacPos, const Vector2f& pacDir, const Vector2f& blinkyPos)
+const Vector2f& Ghost::calcInkyTarget(const Vector2f& pacPos, const Vector2f& pacDir, const Vector2f& blinkyPos)
 {
 	// calculate offset tile - 2 tiles in front of pac
 	Vector2f offset((2.f * pacDir).x + pacPos.x, (2.f * pacDir).y + pacPos.y);
@@ -95,4 +94,13 @@ const Vector2f& Ghost::calcDirVectorTile(const Vector2f& pacPos, const Vector2f&
 	Vector2f unitVect(blinkyPos / length(blinkyPos)); // normalize blinky vector into unit vector
 
 	return unitVect * scaleLength;
+}
+
+Vector2f& Ghost::findOptimalPath(Vector2f& targetPos, GameMap& theMap)
+{
+	// calculate x and y of ghost tile
+	Vector2f ghostTile(getColIndex(getPosition()), getRowIndex(getPosition()));
+
+	// determine if maximizing or minimizing distance based on ghost mode - chase, scatter or frightened
+	
 }
