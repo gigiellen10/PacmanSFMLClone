@@ -14,18 +14,19 @@ class Character : public RectangleShape
 public:
 
 	// METHODS
+	~Character() = 0 {}; // pure virtual, want character to be an interface rather than instantiated
 	
-	// pure virtual methods - overwridden in derived classes 
-	virtual void movement(Time dt, GameMap &theMap) = 0; // executes main movement
 
 	// virtual methods - defined in Character.cpp, not specific to ghost or pacman 
 	virtual bool isWallCollision(GameMap& theMap);
 
 	virtual void computeRayBounds();
 
-	virtual void reCenter(Vector2f& direction);
+	virtual void reCenter();
 
 	virtual bool isOnIntersection(GameMap& theMap) const; // checks if position is on an intersection point
+
+	//virtual bool isNearCenter(GameMap& theMap) const; // checks if entity is near center of a particular cell - for recentering
 
 	// constructor - takes the size of the character, the texture, and spawn points in x and y coords
 	Character(const Texture* charTexture, float spawnX, float spawnY,
@@ -41,11 +42,12 @@ public:
 	LineSegment getRay() const { return mRay; }
 
 
-	// DATA MEMBERS
+	// DATA MEMBERS - public so can be inherited by derived classes
 	bool mIsAlive; // indicates if character still alive
 	float mSpeed; // determines speed of smooth movement
 	Vector2f mDirection; // current direction of entity
 	LineSegment mRay; // checks collisions in current direction of travel
+	
 
 };
 

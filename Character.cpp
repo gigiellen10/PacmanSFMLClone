@@ -69,7 +69,7 @@ void Character::computeRayBounds()
 }
 
 // recenters character in middle of cell
-void Character::reCenter(Vector2f& direction)
+void Character::reCenter()
 {
 	Vector2f currPos = this->getPosition();
 	int row = getRowIndex(currPos), col = getColIndex(currPos);
@@ -81,18 +81,28 @@ void Character::reCenter(Vector2f& direction)
 // determines if character is currently on an intersection point
 bool Character::isOnIntersection(GameMap& theMap) const
 {
-	// determine pacman current position
-	int PacCol = getColIndex(this->getPosition()),
-		PacRow = getRowIndex(this->getPosition());
+	// determine current position
+	int col = getColIndex(this->getPosition()),
+		row = getRowIndex(this->getPosition());
 
-	// if pacman is in an intersection cell 
-	if (theMap[PacRow][PacCol].getIsIntersection() == true)
-	{
-		return true;
-	}
-
-	return false;
+	return theMap[row][col].getIsIntersection();
 }
+
+//bool Character::isNearCenter(GameMap& theMap) const
+//{
+//	// determine current position
+//	int col = getColIndex(this->getPosition()),
+//		row = getRowIndex(this->getPosition());
+//
+//	float xCoord = theMap[row][col].getGlobalBounds().left + 30, 
+//		yCoord = theMap[row][col].getGlobalBounds().top + 30;
+//
+//	// create centered sub square close to middle that origin of character coud intersect with
+//	FloatRect temp(Vector2f(xCoord, yCoord), Vector2f(45.f, 45.f));
+//
+//	return temp.contains(this->getPosition()); // if sub rectangle intersects w character position
+//	
+//}
 
 // returns the row index of a position vector in the map array
 int getRowIndex(Vector2f pos)

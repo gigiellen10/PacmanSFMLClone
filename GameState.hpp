@@ -35,6 +35,7 @@ File purpose: include #define constants and common SFML libraries needed through
 #include <iostream>
 #include <string>
 #include <vector> // for vector of pelets
+#include <math.h> // for pow() function
 
 using std::string;
 using std::cout;
@@ -68,4 +69,6 @@ namespace Direction
 }
 
 void scoreToScreen(RenderWindow& window, Font &font, int currScore);
+const Vector2f operator *(float lhs, Vector2f& rhs);
+float length(const Vector2f& vector); // calculates the length of the given vector
 

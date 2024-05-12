@@ -4,7 +4,6 @@ File: this file contains the function definitions for the pacman class */
 
 #include "Pacman.hpp"
 
-// overridden pure virtual function from Character A.B.C.
 void Pacman::movement(Time dt, GameMap &theMap)
 {
 
@@ -15,7 +14,6 @@ void Pacman::movement(Time dt, GameMap &theMap)
 
 		mSpeed = 300.f;
 	
-
 	/* Wall collision detection */
 
 	// if pacman is on intersection = close to a wall, so compute ray bounds to see when he hits the wall
@@ -28,7 +26,7 @@ void Pacman::movement(Time dt, GameMap &theMap)
 		if (isWallCollision(theMap))
 		{
 			// pac should pick a valid direction before moving further
-			this->reCenter(mDirection);
+			this->reCenter();
 			mSpeed = 0.f;
 		}
 

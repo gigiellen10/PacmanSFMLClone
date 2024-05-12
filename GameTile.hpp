@@ -60,7 +60,7 @@ public:
 private:
 
 	bool mIsIntersection; // true if its an intersection, false if it is not
-	int mIsPassable; // contains a 1 for wall, 0 for empty (may add other #s for pelet, ghost etc)
+	int mIsPassable; // contains a 1 for wall, 0 for empty 
 
 	// row and column of array that cell exists in
 	int mRow; 

@@ -24,12 +24,13 @@ int main()
         Font scoreFont; // font for displaying score in top left corner
         
         mouthStates.loadFromFile("assets\\PacmanSprites.png"); // load pac mouth states
-
+       
         Pacman pac(&mouthStates); // init pacman with mouth state texture
-        Ghost clyde(&tempGhostText, (float)GHOST_SPAWN_X_O, (float)GHOST_SPAWN_Y, Color::Yellow),
-            pinky(&tempGhostText, (float)GHOST_SPAWN_X_P, (float)GHOST_SPAWN_Y, Color::Magenta),
-            inky(&tempGhostText, (float)GHOST_SPAWN_X_B, (float)GHOST_SPAWN_Y, Color::Cyan),
-            blinky(&tempGhostText, (float)GHOST_SPAWN_X_R, (float)GHOST_SPAWN_Y, Color::Red);
+        
+        Ghost clyde(&tempGhostText, (float)GHOST_SPAWN_X_O, (float)GHOST_SPAWN_Y, Color::Yellow, 4),
+            pinky(&tempGhostText, (float)GHOST_SPAWN_X_P, (float)GHOST_SPAWN_Y, Color::Magenta, 2),
+            inky(&tempGhostText, (float)GHOST_SPAWN_X_B, (float)GHOST_SPAWN_Y, Color::Cyan, 1),
+            blinky(&tempGhostText, (float)GHOST_SPAWN_X_R, (float)GHOST_SPAWN_Y, Color::Red, 3);
 
         Clock deltaClock; // for calculating delta time
         Time deltaTime;

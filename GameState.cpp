@@ -15,3 +15,13 @@ void scoreToScreen(RenderWindow& window, Font& font, int currScore)
 	window.draw(myText); // display to window
 }
 
+// for scaling vectors by a constant (float value)
+const Vector2f operator *(float lhs, Vector2f& rhs)
+{
+	return Vector2f(rhs.x * lhs, rhs.y * lhs);
+}
+
+float length(const Vector2f& vector)
+{
+	return pow(vector.x, 2) + pow(vector.y, 2);
+}
