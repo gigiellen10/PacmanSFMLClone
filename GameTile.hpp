@@ -5,7 +5,6 @@ Date: April 10th
 Last modified: April 10th, by Genevieve Kochel
 File purpose: This file contains the class declaration for the game tile class */
 
-#include "GameState.hpp"
 #include "Pelet.hpp" // include for spawnPelet() function
 
 // tiles make up the main gameboard - must be proportional to diameter of pacman
@@ -55,6 +54,12 @@ public:
 	
 	//set intersection status
 	void setIntersection(bool isIntersection) { mIsIntersection = isIntersection; }
+
+	//// returns center coordinates of the tile in pixels
+	//Vector2f computeCenter() const
+	//{
+	//	return Vector2f( (mCol * CELL_SIZE) + (CELL_SIZE / 2), (mRow * CELL_SIZE) + (CELL_SIZE / 2) );
+	//}
 
 
 private:

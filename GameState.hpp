@@ -70,5 +70,5 @@ namespace Direction
 
 void scoreToScreen(RenderWindow& window, Font &font, int currScore);
 const Vector2f operator *(float lhs, Vector2f& rhs);
-float length(const Vector2f& vector); // calculates the length of the given vector
-
+Vector2f operator /(const Vector2f& lhs, double rhs);
+float length(const Vector2f& vector1, const Vector2f& vector2); 

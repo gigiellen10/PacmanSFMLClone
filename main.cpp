@@ -80,6 +80,20 @@ int main()
             pac.movement(deltaTime, map);
             pac.animateMouth(frameCounter); // switch between open/closed mouth as pac moves
 
+            // move ghosts
+            blinky.movement(deltaTime, map,
+                Vector2f(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                Vector2f(getRowIndex(blinky.getPosition()), getColIndex(blinky.getPosition())));
+            pinky.movement(deltaTime, map,
+                Vector2f(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                Vector2f( getRowIndex(blinky.getPosition()), getColIndex(blinky.getPosition())));
+            inky.movement(deltaTime, map,
+                Vector2f(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                Vector2f(getRowIndex(blinky.getPosition()), getColIndex(blinky.getPosition())));
+            clyde.movement(deltaTime, map,
+                Vector2f(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                Vector2f(getRowIndex(blinky.getPosition()), getColIndex(blinky.getPosition())));
+
             isPeletEaten = map.updatePelets(pac.getGlobalBounds()); // determine if pac collided with a pelet
 
             if (isPeletEaten) // pac ate a pelet, add 10 to score count

@@ -21,7 +21,17 @@ const Vector2f operator *(float lhs, Vector2f& rhs)
 	return Vector2f(rhs.x * lhs, rhs.y * lhs);
 }
 
-float length(const Vector2f& vector)
+// for normalizing a vector to compute unit vector (dividing by length)
+Vector2f operator /(const Vector2f& lhs, double rhs)
 {
-	return pow(vector.x, 2) + pow(vector.y, 2);
+	return Vector2f(lhs.x / rhs, lhs.y / rhs);
 }
+
+// calculates the length between two points (for our purposes, vector1 and vector2 will be expressed in pixels, not cartesian row/col 
+// coordinates
+float length(const Vector2f& vector1, const Vector2f& vector2)
+{
+	return sqrt(pow(vector1.x - vector2.x, 2) + pow(vector2.y - vector1.y, 2));
+}
+
+
