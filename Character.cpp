@@ -104,6 +104,29 @@ bool Character::isOnIntersection(GameMap& theMap) const
 //	
 //}
 
+void Character::travelMiddlePath()
+{
+	float xPos = this->getPosition().x, // get current position
+		yPos = this->getPosition().y;
+
+	int PacCol = getColIndex(this->getPosition()), // get current row and col
+		PacRow = getRowIndex(this->getPosition());
+
+	Vector2f centeredPos(xPos, yPos); // set to current position, initially
+
+	if (mDirection == Direction::LEFT || mDirection == Direction::RIGHT) // if travelling left or right, compute center of current row
+	{
+		centeredPos.y = ((float)PacRow * CELL_SIZE) + (CELL_SIZE / 2); // midpt of col
+		this->setPosition(centeredPos);
+	}
+	else if (mDirection == Direction::UP || mDirection == Direction::DOWN) // if travelling left or right, compute center of current col
+	{
+		centeredPos.x = ((float)PacCol * CELL_SIZE) + (CELL_SIZE / 2); // midpt of col
+		this->setPosition(centeredPos);
+	}
+
+}
+
 // returns the row index of a position vector in the map array
 int getRowIndex(Vector2f pos)
 {

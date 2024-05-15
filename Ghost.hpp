@@ -13,26 +13,33 @@ public:
 	Ghost(const Texture* ghostTexture, float spawnX, float spawnY, const Color& temp, /* temp parameter */ int AI)
 		: Character(ghostTexture, spawnX, spawnY) {
 		this->setFillColor(temp);
-		mDirection = Direction::RIGHT; // set to up when beginning escape sequence
-		mSpeed = 200.f; // speed = 200 initally
+		mDirection = Direction::UP; // set to up when beginning escape sequence
+		mSpeed = 175.f; // speed = 200 initally
 		mMode = 1; // chase mode by default
 		mAIType = AI; 
+		mLastTileEval = Vector2f(0, 0);
 	}
 
 	 
-	void movement(Time dt, GameMap& theMap, const Vector2f& pacTile, const Vector2f& pacDir, const Vector2f& blinkyPos);
+	void movement(RenderWindow& window, 
+		Time dt, GameMap& theMap, const Vector2f& pacTile, const Vector2f& pacDir, const Vector2f& blinkyPos);
 
-	Vector2f findTargetTile(const Vector2f& pacTile, const Vector2f &pacDir, const Vector2f& blinkyPos); 
+	Vector2f findTargetTile(const Vector2f& pacTile, const Vector2f &pacDir, const Vector2f& blinkyPos, GameMap& theMap); 
 
 	const Vector2f calcInkyTarget(const Vector2f& pacPos, const Vector2f& pacDir, const Vector2f& blinkyPos);
 
-	Vector2f findOptimalPath(Vector2f& targetPos, GameMap& theMap);
+	Vector2f findOptimalPath(GameMap& theMap);
 
 	bool inPrisonBox(GameMap& theMap);
+
+	/*void escapePrison(GameMap& theMap, Time dt, RenderWindow& window);*/
+
+	vector<Vector2f> findValidDirs(GameMap& theMap);
 
 private:
 	int mMode; // 1 - chase mode, 2 - scatter mode, 3 - frightened mode (run away from pac) 
 	int mAIType; // determines chase pattern/personality for ghost (1 = Inky, 2 = Pinky, 3 = Blinky, 4 = Clyde)
-
+	Vector2f mTarget; // target tile at moment in time
+	Vector2f mLastTileEval; // so doesn't double evaluate an intersection tile while there
 };
 

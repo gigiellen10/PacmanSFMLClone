@@ -30,8 +30,6 @@ public:
 
 	void movement(Time dt, GameMap &theMap); // executes main movement
 
-	void travelMiddlePath(); // recenters in middle of path when turning corners
-
 	bool isValidDirection(bool onIntersection, const Vector2f desiredDirection, GameMap& theMap) const;
 
 	void animateMouth(int frameCounter); // loops through mouth positions

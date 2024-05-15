@@ -26,6 +26,8 @@ public:
 
 	virtual bool isOnIntersection(GameMap& theMap) const; // checks if position is on an intersection point
 
+	virtual void travelMiddlePath();
+
 	//virtual bool isNearCenter(GameMap& theMap) const; // checks if entity is near center of a particular cell - for recentering
 
 	// constructor - takes the size of the character, the texture, and spawn points in x and y coords

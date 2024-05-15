@@ -99,29 +99,6 @@ void Pacman::movement(Time dt, GameMap &theMap)
 }
 
 
-void Pacman::travelMiddlePath()
-{
-	float xPos = this->getPosition().x, // get current position
-		  yPos = this->getPosition().y;
-
-	int PacCol = getColIndex(this->getPosition()), // get current row and col
-		PacRow = getRowIndex(this->getPosition());
-
-	Vector2f centeredPos(xPos, yPos); // set to current position, initially
-
-	if (mDirection == Direction::LEFT || mDirection == Direction::RIGHT) // if travelling left or right, compute center of current row
-	{
-		centeredPos.y = ((float)PacRow * CELL_SIZE) + (CELL_SIZE / 2); // midpt of col
-		this->setPosition(centeredPos);
-	}
-	else if (mDirection == Direction::UP || mDirection == Direction::DOWN) // if travelling left or right, compute center of current col
-	{
-		centeredPos.x = ((float)PacCol * CELL_SIZE) + (CELL_SIZE / 2); // midpt of col
-		this->setPosition(centeredPos);
-	}
-
-}
-
 // evaluates possible paths that can be travelled depending on if the entity is 
 // on an intersection point. returns true for valid direction, false otherwise
 bool Pacman::isValidDirection(bool onIntersection, const Vector2f desiredDirection, GameMap &theMap) const
@@ -130,27 +107,28 @@ bool Pacman::isValidDirection(bool onIntersection, const Vector2f desiredDirecti
 		currCol = getColIndex(this->getPosition());
 
 
-	if (onIntersection) // check surrounding valid paths and compare with desiredDirection
+	if (onIntersection && 
+		!(currRow == 3 && (currCol == 10 || currCol == 11))) // check surrounding valid paths and compare with desiredDirection
 	{
 		// note: could take all these if statements and add to one large compound conditional statement since they all return true. 
 		// I thought this organization was more readable this way, as each direction scenario is separated
 
-		if (desiredDirection == Direction::LEFT && // if col to left is not a wall
+		if (desiredDirection == Direction::LEFT && // if col to left is not a wall 
 			theMap[currRow][currCol - 1].getIsPassable() != 1)
 		{
 			return true;
 		}
-		else if (desiredDirection == Direction::RIGHT && // if col to right is not a wall
+		else if (desiredDirection == Direction::RIGHT && // if col to right is not a wall 
 			theMap[currRow][currCol + 1].getIsPassable() != 1)
 		{
 			return true;
 		}
-		else if (desiredDirection == Direction::DOWN && // if col down is not a wall
+		else if (desiredDirection == Direction::DOWN && // if col down is not a wall or prison cell
 			theMap[currRow + 1][currCol].getIsPassable() != 1)
 		{
 			return true;
 		}
-		else if (desiredDirection == Direction::UP && // if col up is not a wall
+		else if (desiredDirection == Direction::UP && // if col up is not a wall 
 			theMap[currRow - 1][currCol].getIsPassable() != 1)
 		{
 			return true;
