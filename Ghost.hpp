@@ -14,15 +14,18 @@ public:
 		: Character(ghostTexture, spawnX, spawnY) {
 		this->setFillColor(temp);
 		mDirection = Direction::UP; // set to up when beginning escape sequence
-		mSpeed = 175.f; // speed = 200 initally
+		mSpeed = 0.f; // stopped initially
 		mMode = 1; // chase mode by default
 		mAIType = AI; 
 		mLastTileEval = Vector2f(0, 0);
+
+		// establish a prison release time delay - may change so red leaves first
+		mPrisonDelay = 2 * AI; 
+		
 	}
 
 	 
-	void movement(RenderWindow& window, 
-		Time dt, GameMap& theMap, const Vector2f& pacTile, const Vector2f& pacDir, const Vector2f& blinkyPos);
+	void update(Time dt, Clock& prisonClock, GameMap& theMap, const Vector2f& pacTile, const Vector2f& pacDir, const Vector2f& blinkyPos);
 
 	Vector2f findTargetTile(const Vector2f& pacTile, const Vector2f &pacDir, const Vector2f& blinkyPos, GameMap& theMap); 
 
@@ -41,5 +44,10 @@ private:
 	int mAIType; // determines chase pattern/personality for ghost (1 = Inky, 2 = Pinky, 3 = Blinky, 4 = Clyde)
 	Vector2f mTarget; // target tile at moment in time
 	Vector2f mLastTileEval; // so doesn't double evaluate an intersection tile while there
+	int mPrisonDelay; // # seconds delay until exits prison box
 };
+
+
+
+
 

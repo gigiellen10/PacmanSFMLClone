@@ -9,6 +9,8 @@ File purpose: this file contains main() */
 int main()
 {
 
+    srand((unsigned int)time(NULL));
+
     RenderWindow window(VideoMode(MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS), "Genevieve's Pacman Clone!!");
     window.setFramerateLimit(60); // normalize the framrate to 60 fps
 
@@ -27,12 +29,14 @@ int main()
        
         Pacman pac(&mouthStates); // init pacman with mouth state texture
         
-        Ghost/* clyde(&tempGhostText, (float)GHOST_SPAWN_X_O, (float)GHOST_SPAWN_Y, Color::Yellow, 4),
-            pinky(&tempGhostText, (float)GHOST_SPAWN_X_P, (float)GHOST_SPAWN_Y, Color::Magenta, 2),
-            inky(&tempGhostText, (float)GHOST_SPAWN_X_B, (float)GHOST_SPAWN_Y, Color::Cyan, 1),*/
-            blinky(&tempGhostText, /*675.f(*/(float)GHOST_SPAWN_X_R, (float)GHOST_SPAWN_Y/*315.f*/, Color::Red, 3);
+        Ghost clyde(&tempGhostText, (float)GHOST_SPAWN_X_O, (float)GHOST_SPAWN_Y, Color::Yellow, 4),
+            pinky(&tempGhostText, (float)GHOST_SPAWN_X_P, (float)GHOST_SPAWN_Y, Color::Magenta, 1),
+            inky(&tempGhostText, (float)GHOST_SPAWN_X_B, (float)GHOST_SPAWN_Y, Color::Cyan, 2),
+            blinky(&tempGhostText, (float)GHOST_SPAWN_X_R, (float)GHOST_SPAWN_Y, Color::Red, 3);
 
-        Clock deltaClock; // for calculating delta time
+        Clock deltaClock, 
+            ghostPrisonClock; // for calculating delta time, time elapsed per this level
+
         Time deltaTime;
 
         // array to load main game maze
@@ -79,21 +83,24 @@ int main()
 
             pac.movement(deltaTime, map);
             pac.animateMouth(frameCounter); // switch between open/closed mouth as pac moves
-
+        
             
             // move ghosts
-            blinky.movement(window, deltaTime, map,
+            blinky.update(deltaTime, ghostPrisonClock, map,
                 Vector2f(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
                 Vector2f(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
-           /* pinky.movement(deltaTime, map,
+
+            pinky.update(deltaTime, ghostPrisonClock, map,
                 Vector2f(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
-                Vector2f( getRowIndex(blinky.getPosition()), getColIndex(blinky.getPosition())));
-            inky.movement(deltaTime, map,
+                Vector2f(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+
+            inky.update(deltaTime, ghostPrisonClock, map,
                 Vector2f(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
-                Vector2f(getRowIndex(blinky.getPosition()), getColIndex(blinky.getPosition())));
-            clyde.movement(deltaTime, map,
+                Vector2f(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+
+            clyde.update(deltaTime, ghostPrisonClock, map,
                 Vector2f(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
-                Vector2f(getRowIndex(blinky.getPosition()), getColIndex(blinky.getPosition())));*/
+                Vector2f(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
 
             isPeletEaten = map.updatePelets(pac.getGlobalBounds()); // determine if pac collided with a pelet
 
@@ -125,9 +132,9 @@ int main()
             // draw characters
             window.draw(pac);
             window.draw(gate);
-           /* window.draw(pinky);
+            window.draw(pinky);
             window.draw(inky);
-            window.draw(clyde);*/
+            window.draw(clyde);
             window.draw(blinky);
 
             window.display();

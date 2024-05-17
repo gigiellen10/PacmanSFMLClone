@@ -29,6 +29,8 @@ File purpose: include #define constants and common SFML libraries needed through
 
 #define GHOST_SPAWN_Y 495 
 
+#define GHOST_SPEED 175
+
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>

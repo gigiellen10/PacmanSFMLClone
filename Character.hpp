@@ -41,6 +41,8 @@ public:
 	Vector2f getDirection() const { return mDirection; }
 	void setDirection(Vector2f newDir) { mDirection = newDir; }
 
+	void setSpeed(float newSpeed) { mSpeed = newSpeed; }
+
 	LineSegment getRay() const { return mRay; }
 
 

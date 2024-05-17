@@ -4,38 +4,44 @@ File purpose: contains the function definitions for the ghost class */
 
 #include "Ghost.hpp"
 
-void Ghost::movement(RenderWindow& window, 
-	Time dt, GameMap& theMap, const Vector2f& pacTile, const Vector2f& pacDir, const Vector2f& blinkyPos)
+void Ghost::update(Time dt, Clock& prisonClock, GameMap& theMap, const Vector2f& pacTile, 
+	const Vector2f& pacDir, const Vector2f& blinkyPos)
 {
-	Vector2f ghostPos((float)getColIndex(getPosition()), (float)getRowIndex(getPosition())),
+	// determine if ghost can leave the prison initially, set speed to move
+	if (prisonClock.getElapsedTime().asSeconds() >= mPrisonDelay)
+		mSpeed = GHOST_SPEED; // establish speed = 175.f
+	
+
+
+		Vector2f ghostPos((float)getColIndex(getPosition()), (float)getRowIndex(getPosition())),
 			newDir; // direction that ghost should travel to get to target tile
 
-	// determine if ghost on an intersection
-	bool onIntersection = isOnIntersection(theMap);
+		// determine if ghost on an intersection
+		bool onIntersection = isOnIntersection(theMap);
 
-	mTarget = findTargetTile(pacTile, pacDir, blinkyPos, theMap); // for pinpointing ghost target tile
+		mTarget = findTargetTile(pacTile, pacDir, blinkyPos, theMap); // for pinpointing ghost target tile
 
-	// set new ray bounds 
-	this->computeRayBounds();
+		// set new ray bounds 
+		this->computeRayBounds();
 
-	// pacman will hit a wall if he continues, so stop and recenter
-	if (isWallCollision(theMap))
-	{
-		// should pick a valid direction before moving further
-		this->reCenter();
+		// pacman will hit a wall if he continues, so stop and recenter
+		if (isWallCollision(theMap))
+		{
+			// should pick a valid direction before moving further
+			this->reCenter();
 
-		// find direction of shortest path to target tile
-		newDir = findOptimalPath(theMap); // pass in coordinates to minimize or maximize distance from 
+			// find direction of shortest path to target tile
+			newDir = findOptimalPath(theMap); // pass in coordinates to minimize or maximize distance from 
 
-		// mark current tile as evaluated
-		mLastTileEval = ghostPos;
+			// mark current tile as evaluated
+			mLastTileEval = ghostPos;
 
-		// set ghost direction 
-		mDirection = newDir;
-	}
+			// set ghost direction 
+			mDirection = newDir;
+		}
 
-	// if haven't already evaluated curr tile and on intersection or prison cell
-		if (mLastTileEval != ghostPos && (onIntersection || inPrisonBox(theMap)))  
+		// if haven't already evaluated curr tile and on intersection or prison cell
+		if (mLastTileEval != ghostPos && (onIntersection || inPrisonBox(theMap)))
 		{
 			// find direction of shortest path to target tile
 			newDir = findOptimalPath(theMap); // pass in coordinates to minimize or maximize distance from 
@@ -52,12 +58,13 @@ void Ghost::movement(RenderWindow& window,
 			// reset last tile
 			mLastTileEval = Vector2f(0, 0);
 		}
+
+
+		this->travelMiddlePath(); // to ensure stays centered in path
+
+		// apply movement 
+		this->move(mSpeed * mDirection * dt.asSeconds());
 	
-
-	this->travelMiddlePath(); // to ensure stays centered in path
-
-	// apply movement 
-	this->move(mSpeed * mDirection * dt.asSeconds());
 
 }
 
@@ -75,20 +82,20 @@ Vector2f Ghost::findTargetTile(const Vector2f& pacTile, const Vector2f& pacDir, 
 			else // inky or pinky target to escape
 				target = Vector2f(11, 3);
 		}
-		else if (mAIType == 1) // 4 tiles in front of pacman
+		else if (mAIType == 1) // 4 tiles in front of pacman, pinky
 		{
 			target = pacTile + (4.f * pacDir); 
 		}
-		else if (mAIType == 3 || mAIType == 2) // pac's tile
+		else if (mAIType == 3 || mAIType == 4) // pac's tile, blinky and clyde
 		{
 			target = pacTile;
 		}
-		else // AI type = 4, vector through offset tile and through blinky 
+		else // AI type = 2, vector through offset tile and through blinky, inky 
 		{
 			target = calcInkyTarget(pacTile, pacDir, blinkyPos);
 		}
 	}
-	else // mode = scatter
+	else if (mMode == 2) // mode = scatter, run to corners
 	{
 		if (mAIType == 1)
 		{
@@ -106,6 +113,10 @@ Vector2f Ghost::findTargetTile(const Vector2f& pacTile, const Vector2f& pacDir, 
 		{
 			target = Vector2f(21, 10); // lower right corner
 		}
+	}
+	else // frightened mode, maximize distance from pacman
+	{
+		target = pacTile;
 	}
 
 	return target;
@@ -211,3 +222,4 @@ vector<Vector2f> Ghost::findValidDirs(GameMap& theMap)
 
 	return validDirs;
 }
+
