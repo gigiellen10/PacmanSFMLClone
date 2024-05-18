@@ -94,14 +94,14 @@ void Pacman::movement(Time dt, GameMap &theMap)
 	this->travelMiddlePath(); // ensure that pacman is traveling in the middle of a path/can't cut corners 
 
 	// apply movement 
-	this->move(mSpeed * mDirection * dt.asSeconds());
+	this->move(mSpeed * static_cast<Vector2f>(mDirection) * dt.asSeconds());
 	
 }
 
 
 // evaluates possible paths that can be travelled depending on if the entity is 
 // on an intersection point. returns true for valid direction, false otherwise
-bool Pacman::isValidDirection(bool onIntersection, const Vector2f desiredDirection, GameMap &theMap) const
+bool Pacman::isValidDirection(bool onIntersection, const Vector2i desiredDirection, GameMap &theMap) const
 {
 	int currRow = getRowIndex(this->getPosition()), // compute pacman's current row/col
 		currCol = getColIndex(this->getPosition());
@@ -139,7 +139,7 @@ bool Pacman::isValidDirection(bool onIntersection, const Vector2f desiredDirecti
 	{
 		// can only make a complete 180 turn/opposite direction of current direction
 		
-		if (mDirection == Vector2f(-desiredDirection.x, -desiredDirection.y) || // adding a (-) reverses the direction vector
+		if (mDirection == Vector2i(-desiredDirection.x, -desiredDirection.y) || // adding a (-) reverses the direction vector
 			(( this->getPosition() == Vector2f(PAC_SPAWN_X, PAC_SPAWN_Y) )
 			&& (desiredDirection == Direction::LEFT || desiredDirection == Direction::RIGHT) ) )  // if at spawn point, can only move left or right!!
 		{
@@ -170,9 +170,8 @@ void Pacman::animateMouth(int frameCounter)
 }
 
 // computes the degrees to rotate pacman depending on current and desired direction 
-void Pacman::changeDirection(Vector2f& currDir, const Vector2f& newDir)
+void Pacman::changeDirection(Vector2i& currDir, const Vector2i& newDir)
 {
-	Vector2f copyNewDir = newDir;
 
 	// if changing direction
 	if (currDir != newDir)

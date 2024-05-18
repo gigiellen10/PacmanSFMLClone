@@ -9,12 +9,14 @@ File purpose: this file contains the function definitons for the GameMap class *
 // constructor 
 GameMap::GameMap(int mapOutline[MAP_HEIGHT][MAP_WIDTH])
 {
-	
+	float peletSize = 7.f;
+	bool isPower = false;
+
 	mNumPelets = 0; // initialize # pelets on map
 
 	for (int i = 0; i < MAP_HEIGHT; ++i) // controlls rows
 	{
-		for (int j = 0; j < MAP_WIDTH; ++j) // controlls cols
+		for (int j = 0; j < MAP_WIDTH; ++j) // controlls cols; reset power pelet and size params
 		{
 			// loop through integer array passed in and construct map according to cell values (0, 1 or 2)
 
@@ -30,8 +32,21 @@ GameMap::GameMap(int mapOutline[MAP_HEIGHT][MAP_WIDTH])
 			if (mTileArr[i][j].getIsPassable() != 1 
 				&& mTileArr[i][j].getIsPassable() != 3) // if not a wall and not a prison cell 
 			{
+				isPower = false; // reset size and status of power pelet
+				peletSize = 7.f;
+
+				// set power pelets; static positions
+				if ((i == 3 && j == 3) || (i == 9 && j == 5) 
+					|| (i == 1 && j == 9) || (i == 3 && j == 15) || (i == 9 && j == 17))
+				{
+					peletSize = 20.f;
+					isPower = true;
+				}
+
+
 				// add pelet to vector; compute exact midpt of the particular cell 
-				mPeletList.push_back(Pelet((float)(CELL_SIZE * j) + (CELL_SIZE / 2), (float)(CELL_SIZE * i) + (CELL_SIZE / 2))); // add pelet to vector 
+				mPeletList.push_back(Pelet((float)(CELL_SIZE * j) + (CELL_SIZE / 2), 
+					(float)(CELL_SIZE * i) + (CELL_SIZE / 2), peletSize, isPower)); // add pelet to vector 
 				++mNumPelets; // increment number of pelets
 			}
 

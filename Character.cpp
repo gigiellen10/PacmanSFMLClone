@@ -88,22 +88,6 @@ bool Character::isOnIntersection(GameMap& theMap) const
 	return theMap[row][col].getIsIntersection();
 }
 
-//bool Character::isNearCenter(GameMap& theMap) const
-//{
-//	// determine current position
-//	int col = getColIndex(this->getPosition()),
-//		row = getRowIndex(this->getPosition());
-//
-//	float xCoord = theMap[row][col].getGlobalBounds().left + 30, 
-//		yCoord = theMap[row][col].getGlobalBounds().top + 30;
-//
-//	// create centered sub square close to middle that origin of character coud intersect with
-//	FloatRect temp(Vector2f(xCoord, yCoord), Vector2f(45.f, 45.f));
-//
-//	return temp.contains(this->getPosition()); // if sub rectangle intersects w character position
-//	
-//}
-
 void Character::travelMiddlePath()
 {
 	float xPos = this->getPosition().x, // get current position

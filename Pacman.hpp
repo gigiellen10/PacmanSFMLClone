@@ -30,11 +30,11 @@ public:
 
 	void movement(Time dt, GameMap &theMap); // executes main movement
 
-	bool isValidDirection(bool onIntersection, const Vector2f desiredDirection, GameMap& theMap) const;
+	bool isValidDirection(bool onIntersection, const Vector2i desiredDirection, GameMap& theMap) const;
 
 	void animateMouth(int frameCounter); // loops through mouth positions
 
-	void changeDirection(Vector2f& currDir, const Vector2f& newDir); // checks current and new direction and rotates accordingly
+	void changeDirection(Vector2i& currDir, const Vector2i& newDir); // checks current and new direction and rotates accordingly
 
 	void isDeath(const sf::FloatRect& ghost1Pos, const sf::FloatRect& ghost2Pos, 
 		const sf::FloatRect& ghost3Pos, const sf::FloatRect& ghost4Pos); // checks if pacman collides with any ghosts, adjusts pacman alive status accordingly

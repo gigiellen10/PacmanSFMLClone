@@ -87,20 +87,20 @@ int main()
             
             // move ghosts
             blinky.update(deltaTime, ghostPrisonClock, map,
-                Vector2f(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
-                Vector2f(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+                Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
 
             pinky.update(deltaTime, ghostPrisonClock, map,
-                Vector2f(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
-                Vector2f(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+                Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
 
             inky.update(deltaTime, ghostPrisonClock, map,
-                Vector2f(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
-                Vector2f(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+                Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
 
             clyde.update(deltaTime, ghostPrisonClock, map,
-                Vector2f(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
-                Vector2f(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+                Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
 
             isPeletEaten = map.updatePelets(pac.getGlobalBounds()); // determine if pac collided with a pelet
 

@@ -38,8 +38,8 @@ public:
 	bool getIsAlive() const { return mIsAlive; }
 	void setIsAlive(bool newAliveStatus) { mIsAlive = newAliveStatus; }
 
-	Vector2f getDirection() const { return mDirection; }
-	void setDirection(Vector2f newDir) { mDirection = newDir; }
+	Vector2i getDirection() const { return mDirection; }
+	void setDirection(Vector2i newDir) { mDirection = newDir; }
 
 	void setSpeed(float newSpeed) { mSpeed = newSpeed; }
 
@@ -49,7 +49,7 @@ public:
 	// DATA MEMBERS - public so can be inherited by derived classes
 	bool mIsAlive; // indicates if character still alive
 	float mSpeed; // determines speed of smooth movement
-	Vector2f mDirection; // current direction of entity
+	Vector2i mDirection; // current direction of entity
 	LineSegment mRay; // checks collisions in current direction of travel
 	
 

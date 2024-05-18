@@ -59,18 +59,19 @@ using sf::FloatRect;
 using sf::Sprite;
 using sf::Texture;
 using sf::RectangleShape;
+using sf::Vector2i;
 
 // commonly used directions that entities can travel along map
 namespace Direction
 {
-	const Vector2f LEFT(-1, 0);
-	const Vector2f RIGHT(1, 0);
-	const Vector2f DOWN(0, 1);
-	const Vector2f UP(0, -1);
-	const Vector2f STOP(0, 0);
+	const Vector2i LEFT(-1, 0);
+	const Vector2i RIGHT(1, 0);
+	const Vector2i DOWN(0, 1);
+	const Vector2i UP(0, -1);
+	const Vector2i STOP(0, 0);
 }
 
 void scoreToScreen(RenderWindow& window, Font &font, int currScore);
-const Vector2f operator *(float lhs, Vector2f& rhs);
+//const Vector2i operator *(Vector2i& lhs, float rhs);
 Vector2f operator /(const Vector2f& lhs, double rhs);
-float length(const Vector2f& vector1, const Vector2f& vector2); 
+double length(const Vector2i& vector1, const Vector2i& vector2);
