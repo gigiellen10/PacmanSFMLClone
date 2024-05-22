@@ -30,7 +30,8 @@ File purpose: include #define constants and common SFML libraries needed through
 
 #define GHOST_SPAWN_Y 495 
 
-#define GHOST_SPEED 175
+#define GHOST_CHASE_SPEED 200
+#define GHOST_FRIGHT_SPEED 225
 
 
 #include <SFML/Graphics.hpp>

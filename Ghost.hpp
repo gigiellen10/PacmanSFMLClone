@@ -27,7 +27,7 @@ public:
 	// necessary setters and getters
 	void setMode(int newMode) { mMode = newMode; }
 
-	void setModeTimer(int timeInMode) { mMode = timeInMode; }
+	void setModeTimer(int timeInMode) { mModeTimer = timeInMode; }
 
 	void resetModeClock() { mModeClock.restart(); }
 

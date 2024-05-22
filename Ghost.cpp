@@ -11,7 +11,7 @@ void Ghost::update(Time dt, const Clock& prisonClock, GameMap& theMap, const Vec
 	if (prisonClock.getElapsedTime().asSeconds() >= mPrisonDelay
 		&& mSpeed == 0.f) // prevent unnecessary speed assignments
 	{
-		mSpeed = GHOST_SPEED; // establish speed = 175.f
+		mSpeed = GHOST_CHASE_SPEED; // establish speed = 175.f
 	}
 
 		Vector2i ghostPos(getColIndex(getPosition()), getRowIndex(getPosition())),
@@ -226,13 +226,14 @@ vector<Vector2i> Ghost::findValidDirs(GameMap& theMap)
 
 void Ghost::checkModeTimer(int level)
 {
-
 	// if in frightened mode NEVER HITS THIS CASE ********************
 	if (mMode == 3 
 		&& mModeClock.getElapsedTime().asSeconds() >= mModeTimer)
 	{
 		cout << "switched from frightened to chase at " << mModeClock.getElapsedTime().asSeconds() << " seconds.\n";
 		mMode = 1; // set mode back to chase mode
+
+		mSpeed = GHOST_CHASE_SPEED;
 
 		mModeClock.restart(); // restart the clock each time mode switched
 
@@ -257,6 +258,8 @@ void Ghost::checkModeTimer(int level)
 		cout << "switched from chase to scatter at " << mModeClock.getElapsedTime().asSeconds() << " seconds.\n";
 		mMode = 2; // alternate to scatter mode
 
+		mSpeed = GHOST_FRIGHT_SPEED;
+
 		mModeClock.restart();
 
 		// set time to scatter based on curr level
@@ -278,6 +281,8 @@ void Ghost::checkModeTimer(int level)
 	{
 		cout << "switched from scatter to chase at " << mModeClock.getElapsedTime().asSeconds() << " seconds.\n";
 		mMode = 1; // alternate to chase mode
+
+		mSpeed = GHOST_CHASE_SPEED;
 
 		mModeClock.restart();
 

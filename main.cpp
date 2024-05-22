@@ -123,6 +123,7 @@ int main()
                     inky.setMode(3);
                     inky.resetModeClock();
                     inky.setModeTimer(4);
+                    inky.setSpeed(GHOST_FRIGHT_SPEED); 
                     cout << "inky frightened\n";
                 }
                 if (!blinky.inPrisonBox(map))
@@ -130,6 +131,7 @@ int main()
                     blinky.setMode(3);
                     blinky.resetModeClock();
                     blinky.setModeTimer(4);
+                    inky.setSpeed(GHOST_FRIGHT_SPEED);
                     cout << "blinky frightened\n";
                 }
                 if (!pinky.inPrisonBox(map))
@@ -137,6 +139,7 @@ int main()
                     pinky.setMode(3);
                     pinky.resetModeClock();
                     pinky.setModeTimer(4);
+                    inky.setSpeed(GHOST_FRIGHT_SPEED);
                     cout << "pinky frightened\n";
                 }
                 if (!clyde.inPrisonBox(map))
@@ -144,15 +147,17 @@ int main()
                     clyde.setMode(3);
                     clyde.resetModeClock();
                     clyde.setModeTimer(4);
+                    inky.setSpeed(GHOST_FRIGHT_SPEED);
                     cout << "lcyde frightened\n";
                 }
             }
 
-            // adjust ghost mode if mode timer ran out
+            // adjust ghost mode and reset speed if mode timer ran out
             inky.checkModeTimer(level);
-            blinky.checkModeTimer(level);
             pinky.checkModeTimer(level);
+            blinky.checkModeTimer(level);
             clyde.checkModeTimer(level);
+            
 
 
             // check if pacman has collided with a ghost
