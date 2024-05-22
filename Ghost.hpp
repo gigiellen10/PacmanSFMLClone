@@ -18,14 +18,21 @@ public:
 		mMode = 1; // chase mode by default
 		mAIType = AI; 
 		mLastTileEval = Vector2i(0, 0);
-
-		// establish a prison release time delay - may change so red leaves first
-		mPrisonDelay = 3 * AI; 
+		mModeTimer = 10; // chase for 10 seconds initially
+		mModeClock = Clock(); 
+		mPrisonDelay = 3 * AI; // establish a prison release time delay - may change so red leaves first
 		
 	}
 
-	 
-	void update(Time dt, Clock& prisonClock, GameMap& theMap, const Vector2i& pacTile, const Vector2i& pacDir, const Vector2i& blinkyPos);
+	// necessary setters and getters
+	void setMode(int newMode) { mMode = newMode; }
+
+	void setModeTimer(int timeInMode) { mMode = timeInMode; }
+
+	void resetModeClock() { mModeClock.restart(); }
+
+	// game methods 
+	void update(Time dt, const Clock& prisonClock, GameMap& theMap, const Vector2i& pacTile, const Vector2i& pacDir, const Vector2i& blinkyPos);
 
 	Vector2i findTargetTile(const Vector2i& pacTile, const Vector2i &pacDir, const Vector2i& blinkyPos, GameMap& theMap); 
 
@@ -37,12 +44,16 @@ public:
 
 	vector<Vector2i> findValidDirs(GameMap& theMap);
 
+	void checkModeTimer(int level);
+
 private:
 	int mMode; // 1 - chase mode, 2 - scatter mode, 3 - frightened mode (run away from pac) 
 	int mAIType; // determines chase pattern/personality for ghost (1 = Inky, 2 = Pinky, 3 = Blinky, 4 = Clyde)
 	Vector2i mTarget; // target tile at moment in time
 	Vector2i mLastTileEval; // so doesn't double evaluate an intersection tile while there
 	int mPrisonDelay; // # seconds delay until exits prison box
+	int mModeTimer; // controlls how long ghost is in a certain mode based on level or power pelet
+	Clock mModeClock; // reset each time a ghost's mode is switched
 };
 
 

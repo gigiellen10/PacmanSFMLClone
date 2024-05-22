@@ -91,21 +91,27 @@ GameTile* GameMap::operator [](int index)
 } 
 
 // edits the color of pelets displayed and decreases pelets that exist on gameboard
-bool GameMap::updatePelets(const FloatRect &pacGlobBounds)
+// returns 0 if not eaten, 1 if regular pelet eaten, 2 if power pel eaten
+int GameMap::updatePelets(const FloatRect &pacGlobBounds)
 {
+	int peletEatenType = 0; // initially pelet not eaten
+
 	// loop through pelet vector to see if pac collides (eats) any pelets
 	for (auto i = begin(mPeletList); i != end(mPeletList); ++i)
 	{
 		if (i->getGlobalBounds().intersects(pacGlobBounds) && !i->getIsEaten()) // pac is overlapping with a pelet and it hasnt been eaten yet
 		{
-			i->setIsEaten(true); // mark as eaten
+			if (i->IsPower()) 
+				peletEatenType = 2; // power pelet eaten
+			else 
+				peletEatenType = 1; // reg pelet
+
+			i->setIsEaten(true); 
 			i->setFillColor(Color::Black); // set to color of gameboard so not visible
 			--mNumPelets; // 1 less pelet on board
-
-			return true; // pelet has been eaten
 		}
 	}
 
-	return false;
+	return peletEatenType;
 }
 

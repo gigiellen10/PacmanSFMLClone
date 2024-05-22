@@ -6,6 +6,7 @@ File purpose: include #define constants and common SFML libraries needed through
 
 
 // global constants - width and height of a cell in pixels (proportional to pacman diameter)
+
 #define CELL_SIZE 90
 
 #define MAP_WIDTH_PIXELS 1980 // = 22 game tiles

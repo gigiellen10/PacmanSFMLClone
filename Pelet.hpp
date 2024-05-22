@@ -24,6 +24,8 @@ public:
 	void setIsEaten(bool status) { mIsEaten = status; }
 	bool getIsEaten() const { return mIsEaten; }
 
+	bool IsPower() const { return mIsPower; }
+
 
 private:
 

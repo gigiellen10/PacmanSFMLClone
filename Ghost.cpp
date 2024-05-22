@@ -4,11 +4,12 @@ File purpose: contains the function definitions for the ghost class */
 
 #include "Ghost.hpp"
 
-void Ghost::update(Time dt, Clock& prisonClock, GameMap& theMap, const Vector2i& pacTile, 
+void Ghost::update(Time dt, const Clock& prisonClock, GameMap& theMap, const Vector2i& pacTile, 
 	const Vector2i& pacDir, const Vector2i& blinkyPos)
 {
 	// determine if ghost can leave the prison initially, set speed to move
-	if (prisonClock.getElapsedTime().asSeconds() >= mPrisonDelay)
+	if (prisonClock.getElapsedTime().asSeconds() >= mPrisonDelay
+		&& mSpeed == 0.f) // prevent unnecessary speed assignments
 	{
 		mSpeed = GHOST_SPEED; // establish speed = 175.f
 	}
@@ -129,7 +130,7 @@ const Vector2f Ghost::calcInkyTarget(const Vector2i& pacPos, const Vector2i& pac
 	Vector2i offset((2 * pacDir).x + pacPos.x, (2 * pacDir).y + pacPos.y);
 
 	// compute length of difference of offset vector from blinky's position
-	float scaleLength = length(blinkyPos, offset);
+	float scaleLength = (float)length(blinkyPos, offset);
 
 	Vector2f unitVect(static_cast<Vector2f>(blinkyPos) / sqrt(pow(blinkyPos.x, 2) + pow(blinkyPos.y, 2)) ); // normalize blinky vector by dividing by length
 
@@ -154,7 +155,7 @@ Vector2i Ghost::findOptimalPath(GameMap& theMap)
 		for (auto i : possibleDirs) // draw vectors from all valid directions
 		{
 				// compute distance between next tile from ghost position in given direction and target tile
-				currVectLength = length(ghostPos + i, mTarget);
+				currVectLength = (int)length(ghostPos + i, mTarget);
 
 				if (currVectLength < minVectorLength) // found new min dir
 				{
@@ -175,7 +176,7 @@ Vector2i Ghost::findOptimalPath(GameMap& theMap)
 		for (auto i : possibleDirs) // draw vectors from all valid directions
 		{
 			// compute distance between next tile from ghost position in given direction and target tile
-			currVectLength = length(ghostPos + i, mTarget);
+			currVectLength = (int)length(ghostPos + i, mTarget);
 
 			if (currVectLength > maxVectorLength) // found new max dir
 			{
@@ -221,5 +222,77 @@ vector<Vector2i> Ghost::findValidDirs(GameMap& theMap)
 	}
 
 	return validDirs;
+}
+
+void Ghost::checkModeTimer(int level)
+{
+
+	// if in frightened mode NEVER HITS THIS CASE ********************
+	if (mMode == 3 
+		&& mModeClock.getElapsedTime().asSeconds() >= mModeTimer)
+	{
+		cout << "switched from frightened to chase at " << mModeClock.getElapsedTime().asSeconds() << " seconds.\n";
+		mMode = 1; // set mode back to chase mode
+
+		mModeClock.restart(); // restart the clock each time mode switched
+
+		// set time to chase based on curr level
+		if (level < 5) // levels 1-5
+		{
+			mModeTimer = 7; // ghosts chase pacman for 7 seconds, longer as levels higher
+		}
+		else if (level >= 5 && level <= 10) // between levels 5-10
+		{
+			mModeTimer = 15; 
+		}
+		else // level is > 10
+		{
+			mModeTimer = 20;
+		}
+
+	}
+	else if (mMode == 1 // if in chase mode
+		&& mModeClock.getElapsedTime().asSeconds() >= mModeTimer)
+	{
+		cout << "switched from chase to scatter at " << mModeClock.getElapsedTime().asSeconds() << " seconds.\n";
+		mMode = 2; // alternate to scatter mode
+
+		mModeClock.restart();
+
+		// set time to scatter based on curr level
+		if (level < 5) // levels 1-5
+		{
+			mModeTimer = 6; 
+		}
+		else if (level >= 5 && level <= 10) // between levels 5-10
+		{
+			mModeTimer = 4;
+		}
+		else // level is > 10
+		{
+			mModeTimer = 2;
+		}
+	}
+	else if (mMode == 2 // if in scatter mode
+		&& mModeClock.getElapsedTime().asSeconds() >= mModeTimer)
+	{
+		cout << "switched from scatter to chase at " << mModeClock.getElapsedTime().asSeconds() << " seconds.\n";
+		mMode = 1; // alternate to chase mode
+
+		mModeClock.restart();
+
+		if (level < 5) // levels 1-5
+		{
+			mModeTimer = 7; // ghosts chase pacman for 7 seconds, longer as levels higher
+		}
+		else if (level >= 5 && level <= 10) // between levels 5-10
+		{
+			mModeTimer = 15;
+		}
+		else // level is > 10
+		{
+			mModeTimer = 20;
+		}
+	}
 }
 

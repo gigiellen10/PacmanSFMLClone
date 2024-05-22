@@ -65,7 +65,7 @@ public:
 private:
 
 	bool mIsIntersection; // true if its an intersection, false if it is not
-	int mIsPassable; // contains a 1 for wall, 0 for empty 
+	int mIsPassable; // contains a 1 for wall, 0 for empty, 3 for prison cell, 2 for intersection cell
 
 	// row and column of array that cell exists in
 	int mRow; 

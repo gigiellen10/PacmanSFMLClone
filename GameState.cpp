@@ -1,4 +1,3 @@
-
 /* Programmer: Genevieve Kochel
 Date: April 18th 2024
 File purpose: contains various general functions that were not methods of any class */

@@ -14,10 +14,12 @@ int main()
     RenderWindow window(VideoMode(MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS), "Genevieve's Pacman Clone!!");
     window.setFramerateLimit(60); // normalize the framrate to 60 fps
 
-        bool isPeletEaten = false, isWon = false; 
-        int frameCounter = 0; // incremented at every iteration of game loop (each frame) - used for animation
+        bool isWon = false; // if game won
+        int frameCounter = 0, // incremented at every iteration of game loop (each frame) - used for animation
+            isPeletEaten = 0, // if pac eats a pelet
+            level = 1; // curr level user is on
 
-        Texture mouthStates,
+        Texture mouthStates, // pac mouth open/closed
        tempGhostText; // 3 different pacman mouth states for animation
 
         // ghost prison gate
@@ -34,8 +36,9 @@ int main()
             inky(&tempGhostText, (float)GHOST_SPAWN_X_B, (float)GHOST_SPAWN_Y, Color::Cyan, 2),
             blinky(&tempGhostText, (float)GHOST_SPAWN_X_R, (float)GHOST_SPAWN_Y, Color::Red, 3);
 
-        Clock deltaClock, 
-            ghostPrisonClock; // for calculating delta time, time elapsed per this level
+        Clock deltaClock, // for calculating delta time, time elapsed per this level;
+            nonResetClock; // nonResetClock is not reset
+          
 
         Time deltaTime;
 
@@ -86,28 +89,70 @@ int main()
         
             
             // move ghosts
-            blinky.update(deltaTime, ghostPrisonClock, map,
+            blinky.update(deltaTime, nonResetClock, map,
                 Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
                 Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
 
-            pinky.update(deltaTime, ghostPrisonClock, map,
+            pinky.update(deltaTime, nonResetClock, map,
                 Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
                 Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
 
-            inky.update(deltaTime, ghostPrisonClock, map,
+            inky.update(deltaTime, nonResetClock, map,
                 Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
                 Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
 
-            clyde.update(deltaTime, ghostPrisonClock, map,
+            clyde.update(deltaTime, nonResetClock, map,
                 Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
                 Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
 
-            isPeletEaten = map.updatePelets(pac.getGlobalBounds()); // determine if pac collided with a pelet
+            // determine if pac collided with a pelet
+            isPeletEaten = map.updatePelets(pac.getGlobalBounds()); 
 
-            if (isPeletEaten) // pac ate a pelet, add 10 to score count
+            if (isPeletEaten == 1) // pac ate a regular pelet, add 10 to score count
             {
                 pac.setScore(pac.getScore() + 10);
             }
+            else if (isPeletEaten == 2)
+            {
+                pac.setScore(pac.getScore() + 50); // power pelet is 50 pts
+
+                
+                // initiate and spend 4 seconds in frightened mode for ghosts if not in prison
+                if (!inky.inPrisonBox(map))
+                {
+                    inky.setMode(3);
+                    inky.resetModeClock();
+                    inky.setModeTimer(4);
+                    cout << "inky frightened\n";
+                }
+                if (!blinky.inPrisonBox(map))
+                {
+                    blinky.setMode(3);
+                    blinky.resetModeClock();
+                    blinky.setModeTimer(4);
+                    cout << "blinky frightened\n";
+                }
+                if (!pinky.inPrisonBox(map))
+                {
+                    pinky.setMode(3);
+                    pinky.resetModeClock();
+                    pinky.setModeTimer(4);
+                    cout << "pinky frightened\n";
+                }
+                if (!clyde.inPrisonBox(map))
+                {
+                    clyde.setMode(3);
+                    clyde.resetModeClock();
+                    clyde.setModeTimer(4);
+                    cout << "lcyde frightened\n";
+                }
+            }
+
+            // adjust ghost mode if mode timer ran out
+            inky.checkModeTimer(level);
+            blinky.checkModeTimer(level);
+            pinky.checkModeTimer(level);
+            clyde.checkModeTimer(level);
 
 
             // check if pacman has collided with a ghost
@@ -118,10 +163,10 @@ int main()
             {
                 isWon = false;
             }
-            else if (pac.getScore() == 1090) // winning score
-            {
-                isWon = true;
-            }
+            //else if (pac.getScore() == 1090) // winning score, need to change based on number power pels
+            //{
+            //    isWon = true;
+            //}
 
             /* CLEAR WINDOW AND DRAW NEW GAMESTATE */
             window.clear();
