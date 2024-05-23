@@ -111,6 +111,25 @@ void Character::travelMiddlePath()
 
 }
 
+// purpose: checks if character has collided with any enemies by comparing global bounds 
+// returns: true if character died, false otherwise
+// accepts: a std vector of RectangleShape's aka global bounding rectangles (for pacman, positions of ghosts; for ghosts, position of pac)
+bool Character::isDeath(const vector<FloatRect>& enemyPositions)
+{
+	bool isDead = false;
+
+	// check each enemy position, if intersects w/ character -> return true
+	for (auto i : enemyPositions)
+	{
+		if (this->getGlobalBounds().intersects(i))
+		{
+			isDead = true;
+		}
+	}
+
+	return isDead;
+}
+
 // returns the row index of a position vector in the map array
 int getRowIndex(Vector2f pos)
 {

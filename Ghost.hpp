@@ -20,18 +20,23 @@ public:
 		mLastTileEval = Vector2i(0, 0);
 		mModeTimer = 10; // chase for 10 seconds initially
 		mModeClock = Clock(); 
-		mPrisonDelay = 3 * AI; // establish a prison release time delay - may change so red leaves first
+		mPrisonDelay = 1 * AI; // establish a prison release time delay - may change so red leaves first
 		
 	}
 
 	// necessary setters and getters
 	void setMode(int newMode) { mMode = newMode; }
+	int getMode() const { return mMode; }
 
 	void setModeTimer(int timeInMode) { mModeTimer = timeInMode; }
 
 	void resetModeClock() { mModeClock.restart(); }
 
+	void setPrisonDelay(int newDelaySecs) { mPrisonDelay = newDelaySecs; }
+
 	// game methods 
+	void animate(int frameCounter); 
+
 	void update(Time dt, const Clock& prisonClock, GameMap& theMap, const Vector2i& pacTile, const Vector2i& pacDir, const Vector2i& blinkyPos);
 
 	Vector2i findTargetTile(const Vector2i& pacTile, const Vector2i &pacDir, const Vector2i& blinkyPos, GameMap& theMap); 
@@ -45,6 +50,7 @@ public:
 	vector<Vector2i> findValidDirs(GameMap& theMap);
 
 	void checkModeTimer(int level);
+
 
 private:
 	int mMode; // 1 - chase mode, 2 - scatter mode, 3 - frightened mode (run away from pac) 

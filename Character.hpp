@@ -14,8 +14,7 @@ class Character : public RectangleShape
 public:
 
 	// METHODS
-	~Character() = 0 {}; // pure virtual, want character to be an interface rather than instantiated
-	
+	virtual void animate(int frameCounter) = 0; // pure virtual, want a Character to be an interface rather than instantiated
 
 	// virtual methods - defined in Character.cpp, not specific to ghost or pacman 
 	virtual bool isWallCollision(GameMap& theMap);
@@ -27,6 +26,8 @@ public:
 	virtual bool isOnIntersection(GameMap& theMap) const; // checks if position is on an intersection point
 
 	virtual void travelMiddlePath();
+
+	virtual bool isDeath(const vector<FloatRect>& enemyPositions);
 
 	//virtual bool isNearCenter(GameMap& theMap) const; // checks if entity is near center of a particular cell - for recentering
 

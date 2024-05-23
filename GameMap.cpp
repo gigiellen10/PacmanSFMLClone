@@ -36,8 +36,8 @@ GameMap::GameMap(int mapOutline[MAP_HEIGHT][MAP_WIDTH])
 				peletSize = 7.f;
 
 				// set power pelets; static positions
-				if ((i == 3 && j == 3) || (i == 9 && j == 5) 
-					|| (i == 1 && j == 9) || (i == 3 && j == 15) || (i == 9 && j == 17))
+				if ((i == 3 && j == 1) 
+					|| (i == 1 && j == 9) || (i == 2 && j == 20))
 				{
 					peletSize = 20.f;
 					isPower = true;

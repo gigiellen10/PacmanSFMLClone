@@ -9,7 +9,7 @@ void Ghost::update(Time dt, const Clock& prisonClock, GameMap& theMap, const Vec
 {
 	// determine if ghost can leave the prison initially, set speed to move
 	if (prisonClock.getElapsedTime().asSeconds() >= mPrisonDelay
-		&& mSpeed == 0.f) // prevent unnecessary speed assignments
+		&& this->inPrisonBox(theMap)) // prevent unnecessary speed assignments
 	{
 		mSpeed = GHOST_CHASE_SPEED; // establish speed = 175.f
 	}
@@ -73,7 +73,26 @@ Vector2i Ghost::findTargetTile(const Vector2i& pacTile, const Vector2i& pacDir, 
 {
 	Vector2i target;
 
-	if (mMode == 1) // chase
+	if (!mIsAlive) // if ghost is dead
+	{
+		if (mAIType == 1) // inky = Blue
+		{
+			target = Vector2i(GHOST_SPAWN_X_B, GHOST_SPAWN_Y);
+		}
+		else if (mAIType == 2) // pinky = Pink
+		{
+			target = Vector2i(GHOST_SPAWN_X_P, GHOST_SPAWN_Y);
+		}
+		else if (mAIType == 3) // blinky = Red
+		{
+			target = Vector2i(GHOST_SPAWN_X_R, GHOST_SPAWN_Y);
+		}
+		else // AI type = 4, clyde = Orange
+		{
+			target = Vector2i(GHOST_SPAWN_X_O, GHOST_SPAWN_Y);
+		}
+	}
+	else if (mMode == 1) // chase
 	{
 		if (inPrisonBox(theMap)) // if in prison
 		{
@@ -226,7 +245,7 @@ vector<Vector2i> Ghost::findValidDirs(GameMap& theMap)
 
 void Ghost::checkModeTimer(int level)
 {
-	// if in frightened mode NEVER HITS THIS CASE ********************
+	// if in frightened mode 
 	if (mMode == 3 
 		&& mModeClock.getElapsedTime().asSeconds() >= mModeTimer)
 	{
@@ -300,4 +319,12 @@ void Ghost::checkModeTimer(int level)
 		}
 	}
 }
+
+// OVERRIDE CHARACTER CLASS PURE VIRTUAL FUNCT.
+// purpose: animates ghost based on mode (frightened/not frightenened), alive state, and current direction of travel
+void Ghost::animate(int frameCounter)
+{
+
+}
+
 

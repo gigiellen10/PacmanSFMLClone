@@ -152,8 +152,9 @@ bool Pacman::isValidDirection(bool onIntersection, const Vector2i desiredDirecti
 }
 
 
-// alternates between 2 mouth states based on how many frames elapsed; adjusts texture to display accordingly
-void Pacman::animateMouth(int frameCounter)
+// OVERRIDING CHARACTER PURE VIRTUAL FUNCT!! 
+// purpose: alternates between 2 mouth states based on how many frames elapsed; adjusts texture to display accordingly
+void Pacman::animate(int frameCounter)
 {
 	if (mSpeed != 0.f && this->getPosition() != Vector2f(PAC_SPAWN_X, PAC_SPAWN_Y)) // if pacman is actively moving and not at the spawn point
 	{
@@ -197,18 +198,6 @@ void Pacman::changeDirection(Vector2i& currDir, const Vector2i& newDir)
 	
 }
 
-
-// checks if pacman has collided with a ghost, returns true if so, false otherwise
-void Pacman::isDeath(const sf::FloatRect& ghost1Pos, const sf::FloatRect& ghost2Pos,
-	const sf::FloatRect& ghost3Pos, const sf::FloatRect& ghost4Pos)
-{
-	if (this->getGlobalBounds().intersects(ghost1Pos) || this->getGlobalBounds().intersects(ghost2Pos) // check collisions with all 4 ghosts
-		|| this->getGlobalBounds().intersects(ghost3Pos) || this->getGlobalBounds().intersects(ghost4Pos))
-	{
-		mIsAlive = false; // denote pacman as dead
-		
-	}
-}
 
 
 

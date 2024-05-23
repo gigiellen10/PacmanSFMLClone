@@ -31,7 +31,7 @@ File purpose: include #define constants and common SFML libraries needed through
 #define GHOST_SPAWN_Y 495 
 
 #define GHOST_CHASE_SPEED 200
-#define GHOST_FRIGHT_SPEED 225
+#define GHOST_FRIGHT_SPEED 210
 
 
 #include <SFML/Graphics.hpp>
@@ -74,6 +74,5 @@ namespace Direction
 }
 
 void scoreToScreen(RenderWindow& window, Font &font, int currScore);
-//const Vector2i operator *(Vector2i& lhs, float rhs);
 Vector2f operator /(const Vector2f& lhs, double rhs);
 double length(const Vector2i& vector1, const Vector2i& vector2);
