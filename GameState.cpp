@@ -1,4 +1,3 @@
-
 /* Programmer: Genevieve Kochel
 Date: April 18th 2024
 File purpose: contains various general functions that were not methods of any class */
@@ -14,4 +13,23 @@ void scoreToScreen(RenderWindow& window, Font& font, int currScore)
 	
 	window.draw(myText); // display to window
 }
+
+
+const Vector2i operator *(Vector2i& lhs, float rhs)
+{
+	return Vector2i(lhs.x * rhs, lhs.y * rhs);
+}
+
+// for normalizing a vector to compute unit vector (dividing by length)
+Vector2f operator /(const Vector2f& lhs, double rhs)
+{
+	return Vector2f(lhs.x / rhs, lhs.y / rhs);
+}
+
+// calculates the length between two points 
+double length(const Vector2i& vector1, const Vector2i& vector2)
+{
+	return sqrt(pow(vector1.x - vector2.x, 2) + pow(vector2.y - vector1.y, 2));
+}
+
 

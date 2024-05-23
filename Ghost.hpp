@@ -1,57 +1,94 @@
+/* Programmer name: Genevieve Kochel
+Date created: May 9th 2024
+File purpose: contains the function definitions for the ghost class */
+
 #pragma once
-/* programmer: Jacob Kolk */
 
-#include "GameMap.hpp"
-#include "Pacman.hpp"
+#include "Character.hpp" // ghost derived from character
 
-class Ghost : public sf::Sprite {
-private:
-	int ghostId; // 1 = red, 2 = blue, 3 = white, 4 = green
-	float mSpeed = 200.f; //determines the speed of movment
-	float mEscapeSpeed = 800.f;
-	Vector2f mDirection; // current direction of entity
-	sf::Texture ghostTexture;
+class Ghost : public Character
+{
 public:
-	//setters
-	void setDirection(Vector2f newDir) { mDirection = newDir; }
-	//getters
-	Vector2f getDirection(void) { return mDirection; }
-	//constructor
-	Ghost(float newSpeed, std::string textureFileName, float initialPositionX, float initialPositionY, int ghostNum, Vector2f initialDir)
-	{
-		mDirection = initialDir;
-		ghostId = ghostNum;
-		if (!ghostTexture.loadFromFile(textureFileName)) {//checks if file texture is loaded
-			std::cout << "Failed to load ghost texture" << textureFileName << std::endl;
+	// empty constructor for now, add animation rectangle
+	Ghost(const Texture* ghostTexture, float spawnX, float spawnY, int AI)
+		: Character(ghostTexture, spawnX, spawnY) {
+		
+		mDirection = Direction::UP; // set to up when beginning escape sequence
+		mSpeed = 0.f; // stopped initially
+		mMode = 1; // chase mode by default
+		mAIType = AI; 
+		mLastTileEval = Vector2i(0, 0);
+		mModeTimer = 10; // chase for 10 seconds initially
+		mModeClock = Clock(); 
+		mPrisonDelay = 1 * AI; // establish a prison release time delay - may change so red leaves first
+		mSpawnTile = Vector2i(getColIndex(Vector2f(spawnX, spawnY)), getRowIndex(Vector2f(spawnX, spawnY)));
+
+		// set texture rectangle based on ghost AI
+		if (AI == 1) // blue
+		{
+			this->setTextureRect(IntRect(619, 4, 192, 171));
 		}
-		this->setTexture(ghostTexture);
-		this->setPosition(initialPositionX, initialPositionY);
-		mSpeed = newSpeed;
-		mSpeed = newSpeed;
+		else if (AI == 2) // pink
+		{
+			this->setTextureRect(IntRect(218, 385, 187, 174));
+		}
+		else if (AI == 3) // red 
+		{
+			this->setTextureRect(IntRect(214, 4, 196, 171));
+		}
+		else // orange, Ai type = 4
+		{
+			this->setTextureRect(IntRect(619, 384, 192, 170));
+		}
+
+		
 	}
 
-	void moveGhost(sf::Time deltaTime, GameMap& themap, Pacman pac, bool* ghostOutOfBox);
-	int getAvalibleDirections(GameMap& themap);	//find number of valid directions
+	// necessary setters and getters
+	void setMode(int newMode) { mMode = newMode; }
+	int getMode() const { return mMode; }
 
-	void reCenter(){//moves ghost to center of tile
-		Vector2f currPos = this->getPosition();
-		int row = getRowIndex(currPos), col = getColIndex(currPos);
-		float newX = ((float)col * 90), newY = ((float)row * 90);
-		this->setPosition(newX, newY);
-		return;
-	}
-	void setToMiddle(void) {//sets position to validposition if in wall or outside of maze
-		this->setPosition(Vector2f(90, 90));
-	}
-	bool isPositionValid(void) {
-		int xCoords = this->getPosition().x;
-		int yCoords = this->getPosition().y;
-		if (xCoords > 1980 || yCoords > 990 || xCoords < 1 || yCoords < 1) {
-			return false;
-		}		
-	}
+	void setModeTimer(int timeInMode) { mModeTimer = timeInMode; }
 
+	void resetModeClock() { mModeClock.restart(); }
+
+	void setPrisonDelay(int newDelaySecs) { mPrisonDelay = newDelaySecs; }
+
+	void setTargetTile(Vector2i& newTarget) { mTarget = newTarget; }
+	Vector2i getTargetTile() const { return mTarget; }
+
+	// game methods 
+	void animate(int frameCounter, GameMap& theMap); 
+
+	void update(Time dt, Clock& prisonClock, GameMap& theMap, const Vector2i& pacTile, const Vector2i& pacDir, const Vector2i& blinkyPos);
+
+	Vector2i findTargetTile(const Vector2i& pacTile, const Vector2i &pacDir, const Vector2i& blinkyPos, GameMap& theMap); 
+
+	const Vector2f calcInkyTarget(const Vector2i& pacPos, const Vector2i& pacDir, const Vector2i& blinkyPos);
+
+	Vector2i findOptimalPath(GameMap& theMap);
+
+	bool inPrisonBox(GameMap& theMap);
+
+	bool onSpawnPoint() const; 
+
+	vector<Vector2i> findValidDirs(GameMap& theMap);
+
+	void checkModeTimer(int level);
+
+
+private:
+	int mMode; // 1 - chase mode, 2 - scatter mode, 3 - frightened mode (run away from pac) 
+	int mAIType; // determines chase pattern/personality for ghost (1 = Inky, 2 = Pinky, 3 = Blinky, 4 = Clyde)
+	Vector2i mTarget; // target tile at moment in time
+	Vector2i mLastTileEval; // so doesn't double evaluate an intersection tile while there
+	Vector2i mSpawnTile; // spawn tile
+	int mPrisonDelay; // # seconds delay until exits prison box
+	int mModeTimer; // controlls how long ghost is in a certain mode based on level or power pelet
+	Clock mModeClock; // reset each time a ghost's mode is switched
 };
-void findNextDir3(GameMap& themap, Vector2f* mnewDir, Pacman pac, int avalibleDirections, int xPos, int yPos, Vector2f direction);
-//finds direction that would get ghost closest to pacman in 3 way intersection
-void findNextDir4(GameMap& themap, Vector2f* mnewDir, Pacman pac, int avalibleDirections, int xPos, int yPos, Vector2f Direction);
+
+
+
+
+

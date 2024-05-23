@@ -11,9 +11,10 @@ class Pelet : public CircleShape
 public:
 	
 	// constructor 
-	Pelet(float xPos, float yPos) : CircleShape(10.f) 
+	Pelet(float xPos, float yPos, float size, bool isPowerPel) : CircleShape(size) 
 	{
 		mIsEaten = false; // not eaten initally
+		mIsPower = isPowerPel;
 		this->setOrigin(getRadius(), getRadius()); // set the origin to the exact center of the pelet
 		this->setFillColor(Color::White); // set the fill color to white
 		this->setPosition(xPos, yPos); // set the pelet position
@@ -23,9 +24,11 @@ public:
 	void setIsEaten(bool status) { mIsEaten = status; }
 	bool getIsEaten() const { return mIsEaten; }
 
+	bool IsPower() const { return mIsPower; }
+
 
 private:
 
 	bool mIsEaten; // if pacman has eaten this pelet or not
-
+	bool mIsPower; // if power pelet
 };

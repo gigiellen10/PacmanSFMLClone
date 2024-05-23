@@ -410,6 +410,7 @@ obj/
 
 #ignore SFML folders
 *.dll
+SFML-2.6.1/
 
 # ignore .vcxproj files
 *.vcxproj.users

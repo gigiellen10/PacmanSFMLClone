@@ -1,86 +1,63 @@
-/* Programmer names: Genevieve Kochel, Luka, Jake
+/* Programmer name: Genevieve Kochel
 Date created: April 10th, 2024 
-Date last modified: April 23rd, 2024
-File purpose: this file contains main() and any #define constants and sfml includes */
-
+Date last modified: May 22nd, 2024
+File purpose: this file contains main() */
 
 #include "Pacman.hpp"
-//#include "Ghost.hpp"
-#include "TestGame.hpp"
-#include "Menus.hpp"
-#include "TestGame.hpp"
+#include "Ghost.hpp"
 
 int main()
 {
-   //test cases:
-    TestGame game;
-    //1: Test Ghost Recenter Function
-    game.testGhostRecenter();
-    //2. Test Pacman TravelMiddlePath function
-    game.testPacmanTravelMiddlePath();
-    //3. Test Pacman font import
-    game.testImportFont();
-    //4. Test Pacman wall collision function
-    game.testPacmanWallCollision();
 
+    srand((unsigned int)time(NULL));
 
-    srand((unsigned int)time(0));
-    RenderWindow window(VideoMode(MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS), "Pacman!!");
-    window.setFramerateLimit(60); // normalize the framrate to 60 fps
+    RenderWindow window(VideoMode(MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS), "Genevieve's Pacman Clone!!");
+    window.setFramerateLimit(60); // normalize the framerate to 60 fps
 
-    MenuScreen mainMenu(window); // init main menu
+        bool isWon = false, // if game won
+            pacDeath = false; 
 
-    // window loop for starting menu screen
-    while (window.isOpen())
-    {
-        int selection = mainMenu.handleEvents();
-        mainMenu.render();
-        if (selection == 1) break;
-        else if (selection == -1) return 0;
-    }
+        int frameCounter = 0, // incremented at every iteration of game loop (each frame) - used for animation
+            isPeletEaten = 0, // if pac eats a pelet
+            level = 1; // curr level user is on
 
-    while (true) // main game loop, sends back to main menu
-    {
-
-        bool isPeletEaten = false, isWon = false; 
-        int frameCounter = 0; // incremented at every iteration of game loop (each frame) - used for animation
-
-        Texture mouthStates; // 3 different pacman mouth states for animation
-        mouthStates.loadFromFile("assets\\PacmanSprites.png");
+        Texture mouthStates, 
+        ghostStates; 
+       
+        // load pacman and ghost states from file for animation
+        mouthStates.loadFromFile("assets\\PacmanSprites.png"); 
+        ghostStates.loadFromFile("assets\\GhostStates.png");
 
         Font scoreFont; // font for displaying score in top left corner
+        scoreFont.loadFromFile("assets\\emulogic-font\\Emulogic-zrEw.ttf");
+        
+
+
+        // ghost prison gate
+        RectangleShape gate(Vector2f(180.f, 15.f));
 
         Pacman pac(&mouthStates); // init pacman with mouth state texture
+        
+        Ghost clyde(&ghostStates, (float)GHOST_SPAWN_X_O, (float)GHOST_SPAWN_Y, 4),
+            pinky(&ghostStates, (float)GHOST_SPAWN_X_P, (float)GHOST_SPAWN_Y, 1),
+            inky(&ghostStates, (float)GHOST_SPAWN_X_B, (float)GHOST_SPAWN_Y, 2),
+            blinky(&ghostStates, (float)GHOST_SPAWN_X_R, (float)GHOST_SPAWN_Y, 3);
 
-        // init ghosts
-       /* Ghost redGhost(250.f, "assets/redGhost.png", CELL_SIZE * 9, CELL_SIZE * 5, 1, Direction::RIGHT);
-        Ghost blueGhost(250.f, "assets/blueGhost.png", CELL_SIZE * 10, CELL_SIZE * 5, 2, Direction::UP);
-        Ghost whiteGhost(250.f, "assets/whiteGhost.png", CELL_SIZE * 11, CELL_SIZE * 5, 3, Direction::UP);
-        Ghost greenGhost(250.f, "assets/greenGhost.png", CELL_SIZE * 12, CELL_SIZE * 5, 4, Direction::LEFT);*/
-
-        Clock deltaClock; // for calculating delta time
+        Clock deltaClock, // for calculating delta time, time elapsed per this level;
+            prisonClock; // for delaying ghost release from prison
+          
 
         Time deltaTime;
 
-        //load gate sprites
-        Texture* gateTexture = new Texture;
-        gateTexture->loadFromFile("assets/Gate.png");
-        Sprite* gateSpriteLeft = new Sprite;
-        Sprite* gateSpriteRight = new Sprite;
-        gateSpriteLeft->setTexture(*gateTexture);
-        gateSpriteRight->setTexture(*gateTexture);
-        gateSpriteLeft->setPosition(900, 360);
-        gateSpriteRight->setPosition(990, 360);
-
         // array to load main game maze
-        // 1 = wall, 0 = free path, 2 = intersection point, 3 = shouldn't contain a pelet 
+        // 1 = wall, 0 = free path, 2 = intersection point, 3 = prison cell/shouldn't contain a pelet 
         int myArr[MAP_HEIGHT][MAP_WIDTH]
             = {
                 {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
                 {1, 2, 0, 0, 0, 2, 1, 2, 0, 0, 0, 0, 0, 0, 2, 1, 2, 0, 0, 0, 2, 1},
                 {1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1},
                 {1, 0, 1, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2, 1, 0, 1},
-                {1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1},
+                {1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 3, 3, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1},
                 {1, 2, 0, 2, 0, 0, 0, 2, 1, 3, 3, 3, 3, 1, 2, 0, 0, 0, 2, 0, 2, 1},
                 {1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1},
                 {1, 0, 1, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2, 1, 0, 1},
@@ -90,11 +67,6 @@ int main()
         };
 
         GameMap map(myArr); // construct the game map
-
-        // load score font from file
-        scoreFont.loadFromFile("assets\\emulogic-font\\Emulogic-zrEw.ttf");
-        bool ghostsOutOfBox = false;
-
 
         /* LOOP THAT RUNS MAIN GAME */
 
@@ -112,43 +84,217 @@ int main()
             // calculate delta time (time since clock started)
             Time deltaTime = deltaClock.restart();
 
-            // update state of characters and/or board
-            pac.movePacman(deltaTime, map);
-            pac.animateMouth(frameCounter); // switch between open/closed mouth as pac moves
+            /* UPDATE STATE OF CHARACTERS AND/OR BOARD */
+            gate.setPosition(900, 360);
 
-            isPeletEaten = map.updatePelets(pac.getGlobalBounds()); // determine if pac collided with a pelet
+            // update and animate pac
+            pac.movement(deltaTime, map);
+            //pac.animate(frameCounter); // switch between open/closed mouth as pac moves
+        
+            
+            // update ghosts
+            blinky.update(deltaTime, prisonClock, map,
+                Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
 
-            if (isPeletEaten) // pac ate a pelet, add 10 to score count
+            pinky.update(deltaTime, prisonClock, map,
+                Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+
+            inky.update(deltaTime, prisonClock, map,
+                Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+
+            clyde.update(deltaTime, prisonClock, map,
+                Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+
+            // determine if pac collided with a pelet
+            isPeletEaten = map.updatePelets(pac.getGlobalBounds()); 
+
+            if (isPeletEaten == 1) // pac ate a regular pelet, add 10 to score count
             {
                 pac.setScore(pac.getScore() + 10);
             }
+            else if (isPeletEaten == 2)
+            {
+                pac.setScore(pac.getScore() + 50); // power pelet is 50 pts
 
-            // update state of ghosts
-            /*redGhost.moveGhost(deltaTime, map, pac, &ghostsOutOfBox);
-            blueGhost.moveGhost(deltaTime, map, pac, &ghostsOutOfBox);
-            whiteGhost.moveGhost(deltaTime, map, pac, &ghostsOutOfBox);
-            greenGhost.moveGhost(deltaTime, map, pac, &ghostsOutOfBox);*/
+                
+                // initiate and spend 4 seconds in frightened mode for ghosts if not on spawn point
+                if (!inky.onSpawnPoint())
+                {
+                    inky.setMode(3);
+                    inky.resetModeClock();
+                    inky.setModeTimer(5);
+                    inky.setSpeed(GHOST_FRIGHT_SPEED); 
+                    cout << "inky frightened\n";
+                }
+                if (!blinky.onSpawnPoint())
+                {
+                    blinky.setMode(3);
+                    blinky.resetModeClock();
+                    blinky.setModeTimer(5);
+                    inky.setSpeed(GHOST_FRIGHT_SPEED);
+                    cout << "blinky frightened\n";
+                }
+                if (!pinky.onSpawnPoint())
+                {
+                    pinky.setMode(3);
+                    pinky.resetModeClock();
+                    pinky.setModeTimer(5);
+                    inky.setSpeed(GHOST_FRIGHT_SPEED);
+                    cout << "pinky frightened\n";
+                }
+                if (!clyde.onSpawnPoint())
+                {
+                    clyde.setMode(3);
+                    clyde.resetModeClock();
+                    clyde.setModeTimer(5);
+                    inky.setSpeed(GHOST_FRIGHT_SPEED);
+                    cout << "lcyde frightened\n";
+                }
+            }
 
-            // check for valid ghost placement, recenter if not
-            /*if (redGhost.isPositionValid() == false) { redGhost.reCenter(); }
-            if (greenGhost.isPositionValid() == false) { greenGhost.reCenter(); }
-            if (blueGhost.isPositionValid() == false) { blueGhost.reCenter(); }
-            if (whiteGhost.isPositionValid() == false) { whiteGhost.reCenter(); }*/
+            /* CHECK IF CHARACTERS ARE ALIVE */
+
+            if (inky.getMode() == 3 && // if in frightened mode, check if ghost collided with pac
+                inky.isDeath(vector<FloatRect>({ pac.getGlobalBounds() }))) 
+            {
+                inky.setIsAlive(false);
+            }
+            else if (inky.getMode() != 3
+                && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
+                    blinky.getGlobalBounds(), clyde.getGlobalBounds() }))) // check if pac collided with any ghosts) // if not frightened, pac can die
+            {
+                pac.setIsAlive(false);
+            }
+
+            if (pinky.getMode() == 3 
+                && pinky.isDeath(vector<FloatRect>({ pac.getGlobalBounds() })))
+            {
+                pinky.setIsAlive(false);
+            }
+            else if (pinky.getMode() != 3
+                && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
+                    blinky.getGlobalBounds(), clyde.getGlobalBounds() }))) // check if pac collided with any ghosts) // if not frightened, pac can die
+            {
+                pac.setIsAlive(false);
+            }
+
+            if (blinky.getMode() == 3 
+                && blinky.isDeath(vector<FloatRect>({ pac.getGlobalBounds() })))
+            {
+                blinky.setIsAlive(false);
+            }
+            else if (blinky.getMode() != 3 
+                && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
+                    blinky.getGlobalBounds(), clyde.getGlobalBounds() }))) // check if pac collided with any ghosts) // if not frightened, pac can die
+            {
+                pac.setIsAlive(false);
+            }
+
+            if (clyde.getMode() == 3 
+                && clyde.isDeath(vector<FloatRect>({ pac.getGlobalBounds() })))
+            {
+
+                clyde.setIsAlive(false);
+            }
+            else if (clyde.getMode() != 3
+                && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
+                    blinky.getGlobalBounds(), clyde.getGlobalBounds() }))) // check if pac collided with any ghosts) // if not frightened, pac can die
+            {
+                pac.setIsAlive(false);
+            }
+
+            
+            // if ghost alive, adjust ghost mode and reset speed if mode timer ran out
+            // if ghost dead, initiate respawn sequence/animation
+
+            if (inky.getIsAlive())
+            {
+                inky.checkModeTimer(level);
+            }
+            else // inky dead
+            {
+                // set speed to double current speed
+                inky.setSpeed(300.f);
+
+                // set PrisonDelay to 4 seconds
+                inky.setPrisonDelay(4);
+
+                // set mode back to default mode - chase
+                inky.setMode(1);
+            }
+
+            if (pinky.getIsAlive())
+            {
+                pinky.checkModeTimer(level);
+            }
+            else // pinky dead
+            {
+                // set speed to double current speed
+                pinky.setSpeed(300.f);
+
+                // set PrisonDelay to 4 seconds
+                pinky.setPrisonDelay(4);
+
+                // set mode back to default mode - chase
+                pinky.setMode(1);
+            }
+          
+            if (blinky.getIsAlive())
+            {
+                blinky.checkModeTimer(level);
+            }
+            else // blinky dead
+            {
+                // set speed to double current speed
+                blinky.setSpeed(300.f);
+
+                // set PrisonDelay to 4 seconds
+                blinky.setPrisonDelay(4);
+
+                // set mode back to default mode - chase
+                blinky.setMode(1);
+            }
+
+            if (clyde.getIsAlive())
+            {
+                clyde.checkModeTimer(level);
+            }
+            else // clyde dead
+            {
+
+                // set speed to double current speed
+                clyde.setSpeed(300.f);
+
+                // set PrisonDelay to 4 seconds
+                clyde.setPrisonDelay(4);
+
+                // set mode back to default mode - chase
+                clyde.setMode(1);
+            }
+
+            /* ANIMATE CHARACTERS */
+            pac.animate(frameCounter);
+
+            blinky.animate(frameCounter, map);
+            pinky.animate(frameCounter, map);
+            inky.animate(frameCounter, map);
+            clyde.animate(frameCounter, map);
 
 
-            // check if pacman has collided with a ghost
-           /* pac.isDeath(redGhost.getGlobalBounds(), blueGhost.getGlobalBounds(), whiteGhost.getGlobalBounds(), greenGhost.getGlobalBounds());*/
-
-            // check if game was won or lost; else, continue
+            /* CHECK IF GAME WON OR LOST */
             if (!pac.getIsAlive())
             {
                 isWon = false;
             }
-            else if (pac.getScore() == 1090) // winning score
-            {
-                isWon = true;
-            }
-           
+            //else if (pac.getScore() == 1090) // winning score, need to change based on number power pels
+            //{
+            //    isWon = true;
+            //}
+
             /* CLEAR WINDOW AND DRAW NEW GAMESTATE */
             window.clear();
 
@@ -157,42 +303,19 @@ int main()
 
             // draw characters
             window.draw(pac);
-           /* window.draw(redGhost);
-            window.draw(blueGhost);
-            window.draw(whiteGhost);
-            window.draw(greenGhost);*/
-            window.draw(*gateSpriteLeft);
-            window.draw(*gateSpriteRight);
-           
+            window.draw(gate);
+            window.draw(pinky);
+            window.draw(inky);
+            window.draw(clyde);
+            window.draw(blinky);
+
             window.display();
 
             ++frameCounter; // increment # frames 
 
             // check if won or lost here and display end screen; get input if want to play again
-            if (!pac.getIsAlive() || pac.getScore() == 1090)
-            {
-                break;
-            }
-           
-        }
-
-        // free heap variables
-        delete gateSpriteLeft;
-        delete gateSpriteRight;
-        delete gateTexture;
             
-        EndScreen endScreen(window, isWon); // create end screen based on win or loss
-        while (window.isOpen())
-        {
-            int selection = endScreen.handleEvents(); // determine if player clicked play again or wants to exit (1 or -1)
-            endScreen.render(); // display end screen
 
-            if (selection == 1) break;
-            else if (selection == -1) return 0;
         }
-
-    }
-
-    
     return 0;
 }
