@@ -15,7 +15,7 @@ public:
 	Pacman(const Texture* pacTexture, float radius = 45.f, float newSpeed = 0.f) 
 		: Character(pacTexture, PAC_SPAWN_X, PAC_SPAWN_Y)
 	{
-		this->setTextureRect(sf::IntRect(20, 0, 220, 200)); // original state has no open mouth (1st state on sprite file)
+		this->setTextureRect(IntRect(20, 0, 220, 200)); // original state has no open mouth (1st state on sprite file)
 
 		mScore = 0; // no points yet
 	

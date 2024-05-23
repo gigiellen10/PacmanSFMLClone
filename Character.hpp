@@ -14,7 +14,7 @@ class Character : public RectangleShape
 public:
 
 	// METHODS
-	virtual void animate(int frameCounter) = 0; // pure virtual, want a Character to be an interface rather than instantiated
+	virtual ~Character() = 0 {}; // a character serves as an interface, not to be instantiated
 
 	// virtual methods - defined in Character.cpp, not specific to ghost or pacman 
 	virtual bool isWallCollision(GameMap& theMap);

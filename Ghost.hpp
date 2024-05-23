@@ -10,9 +10,9 @@ class Ghost : public Character
 {
 public:
 	// empty constructor for now, add animation rectangle
-	Ghost(const Texture* ghostTexture, float spawnX, float spawnY, const Color& temp, /* temp parameter */ int AI)
+	Ghost(const Texture* ghostTexture, float spawnX, float spawnY, int AI)
 		: Character(ghostTexture, spawnX, spawnY) {
-		this->setFillColor(temp);
+		
 		mDirection = Direction::UP; // set to up when beginning escape sequence
 		mSpeed = 0.f; // stopped initially
 		mMode = 1; // chase mode by default
@@ -21,6 +21,26 @@ public:
 		mModeTimer = 10; // chase for 10 seconds initially
 		mModeClock = Clock(); 
 		mPrisonDelay = 1 * AI; // establish a prison release time delay - may change so red leaves first
+		mSpawnTile = Vector2i(getColIndex(Vector2f(spawnX, spawnY)), getRowIndex(Vector2f(spawnX, spawnY)));
+
+		// set texture rectangle based on ghost AI
+		if (AI == 1) // blue
+		{
+			this->setTextureRect(IntRect(619, 4, 192, 171));
+		}
+		else if (AI == 2) // pink
+		{
+			this->setTextureRect(IntRect(218, 385, 187, 174));
+		}
+		else if (AI == 3) // red 
+		{
+			this->setTextureRect(IntRect(214, 4, 196, 171));
+		}
+		else // orange, Ai type = 4
+		{
+			this->setTextureRect(IntRect(619, 384, 192, 170));
+		}
+
 		
 	}
 
@@ -34,10 +54,13 @@ public:
 
 	void setPrisonDelay(int newDelaySecs) { mPrisonDelay = newDelaySecs; }
 
-	// game methods 
-	void animate(int frameCounter); 
+	void setTargetTile(Vector2i& newTarget) { mTarget = newTarget; }
+	Vector2i getTargetTile() const { return mTarget; }
 
-	void update(Time dt, const Clock& prisonClock, GameMap& theMap, const Vector2i& pacTile, const Vector2i& pacDir, const Vector2i& blinkyPos);
+	// game methods 
+	void animate(int frameCounter, GameMap& theMap); 
+
+	void update(Time dt, Clock& prisonClock, GameMap& theMap, const Vector2i& pacTile, const Vector2i& pacDir, const Vector2i& blinkyPos);
 
 	Vector2i findTargetTile(const Vector2i& pacTile, const Vector2i &pacDir, const Vector2i& blinkyPos, GameMap& theMap); 
 
@@ -46,6 +69,8 @@ public:
 	Vector2i findOptimalPath(GameMap& theMap);
 
 	bool inPrisonBox(GameMap& theMap);
+
+	bool onSpawnPoint() const; 
 
 	vector<Vector2i> findValidDirs(GameMap& theMap);
 
@@ -57,6 +82,7 @@ private:
 	int mAIType; // determines chase pattern/personality for ghost (1 = Inky, 2 = Pinky, 3 = Blinky, 4 = Clyde)
 	Vector2i mTarget; // target tile at moment in time
 	Vector2i mLastTileEval; // so doesn't double evaluate an intersection tile while there
+	Vector2i mSpawnTile; // spawn tile
 	int mPrisonDelay; // # seconds delay until exits prison box
 	int mModeTimer; // controlls how long ghost is in a certain mode based on level or power pelet
 	Clock mModeClock; // reset each time a ghost's mode is switched

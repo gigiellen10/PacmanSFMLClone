@@ -22,7 +22,7 @@ File purpose: include #define constants and common SFML libraries needed through
 #define PAC_SPAWN_X 1035
 #define PAC_SPAWN_Y 855
 
-// ghost spawn coordinates
+// ghost spawn coordinates in pixels
 #define GHOST_SPAWN_X_O 855 // orange
 #define GHOST_SPAWN_X_R 945 // red
 #define GHOST_SPAWN_X_P 1035 // pink
@@ -62,6 +62,7 @@ using sf::Sprite;
 using sf::Texture;
 using sf::RectangleShape;
 using sf::Vector2i;
+using sf::IntRect;
 
 // commonly used directions that entities can travel along map
 namespace Direction

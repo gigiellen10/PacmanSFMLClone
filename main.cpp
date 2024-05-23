@@ -21,23 +21,27 @@ int main()
             isPeletEaten = 0, // if pac eats a pelet
             level = 1; // curr level user is on
 
-        Texture mouthStates, // pac mouth open/closed
-       tempGhostText; // 3 different pacman mouth states for animation
-
-        // ghost prison gate
-        RectangleShape gate(Vector2f(180.f, 15.f));
+        Texture mouthStates, 
+        ghostStates; 
+       
+        // load pacman and ghost states from file for animation
+        mouthStates.loadFromFile("assets\\PacmanSprites.png"); 
+        ghostStates.loadFromFile("assets\\GhostStates.png");
 
         Font scoreFont; // font for displaying score in top left corner
         scoreFont.loadFromFile("assets\\emulogic-font\\Emulogic-zrEw.ttf");
         
-        mouthStates.loadFromFile("assets\\PacmanSprites.png"); // load pac mouth states
-       
+
+
+        // ghost prison gate
+        RectangleShape gate(Vector2f(180.f, 15.f));
+
         Pacman pac(&mouthStates); // init pacman with mouth state texture
         
-        Ghost clyde(&tempGhostText, (float)GHOST_SPAWN_X_O, (float)GHOST_SPAWN_Y, Color::Yellow, 4),
-            pinky(&tempGhostText, (float)GHOST_SPAWN_X_P, (float)GHOST_SPAWN_Y, Color::Magenta, 1),
-            inky(&tempGhostText, (float)GHOST_SPAWN_X_B, (float)GHOST_SPAWN_Y, Color::Cyan, 2),
-            blinky(&tempGhostText, (float)GHOST_SPAWN_X_R, (float)GHOST_SPAWN_Y, Color::Red, 3);
+        Ghost clyde(&ghostStates, (float)GHOST_SPAWN_X_O, (float)GHOST_SPAWN_Y, 4),
+            pinky(&ghostStates, (float)GHOST_SPAWN_X_P, (float)GHOST_SPAWN_Y, 1),
+            inky(&ghostStates, (float)GHOST_SPAWN_X_B, (float)GHOST_SPAWN_Y, 2),
+            blinky(&ghostStates, (float)GHOST_SPAWN_X_R, (float)GHOST_SPAWN_Y, 3);
 
         Clock deltaClock, // for calculating delta time, time elapsed per this level;
             prisonClock; // for delaying ghost release from prison
@@ -46,7 +50,7 @@ int main()
         Time deltaTime;
 
         // array to load main game maze
-        // 1 = wall, 0 = free path, 2 = intersection point, 3 = shouldn't contain a pelet 
+        // 1 = wall, 0 = free path, 2 = intersection point, 3 = prison cell/shouldn't contain a pelet 
         int myArr[MAP_HEIGHT][MAP_WIDTH]
             = {
                 {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -117,8 +121,8 @@ int main()
                 pac.setScore(pac.getScore() + 50); // power pelet is 50 pts
 
                 
-                // initiate and spend 4 seconds in frightened mode for ghosts if not in prison
-                if (!inky.inPrisonBox(map))
+                // initiate and spend 4 seconds in frightened mode for ghosts if not on spawn point
+                if (!inky.onSpawnPoint())
                 {
                     inky.setMode(3);
                     inky.resetModeClock();
@@ -126,7 +130,7 @@ int main()
                     inky.setSpeed(GHOST_FRIGHT_SPEED); 
                     cout << "inky frightened\n";
                 }
-                if (!blinky.inPrisonBox(map))
+                if (!blinky.onSpawnPoint())
                 {
                     blinky.setMode(3);
                     blinky.resetModeClock();
@@ -134,7 +138,7 @@ int main()
                     inky.setSpeed(GHOST_FRIGHT_SPEED);
                     cout << "blinky frightened\n";
                 }
-                if (!pinky.inPrisonBox(map))
+                if (!pinky.onSpawnPoint())
                 {
                     pinky.setMode(3);
                     pinky.resetModeClock();
@@ -142,7 +146,7 @@ int main()
                     inky.setSpeed(GHOST_FRIGHT_SPEED);
                     cout << "pinky frightened\n";
                 }
-                if (!clyde.inPrisonBox(map))
+                if (!clyde.onSpawnPoint())
                 {
                     clyde.setMode(3);
                     clyde.resetModeClock();
@@ -218,6 +222,9 @@ int main()
 
                 // set PrisonDelay to 4 seconds
                 inky.setPrisonDelay(4);
+
+                // set mode back to default mode - chase
+                inky.setMode(1);
             }
 
             if (pinky.getIsAlive())
@@ -231,6 +238,9 @@ int main()
 
                 // set PrisonDelay to 4 seconds
                 pinky.setPrisonDelay(4);
+
+                // set mode back to default mode - chase
+                pinky.setMode(1);
             }
           
             if (blinky.getIsAlive())
@@ -244,6 +254,9 @@ int main()
 
                 // set PrisonDelay to 4 seconds
                 blinky.setPrisonDelay(4);
+
+                // set mode back to default mode - chase
+                blinky.setMode(1);
             }
 
             if (clyde.getIsAlive())
@@ -258,15 +271,18 @@ int main()
 
                 // set PrisonDelay to 4 seconds
                 clyde.setPrisonDelay(4);
+
+                // set mode back to default mode - chase
+                clyde.setMode(1);
             }
 
             /* ANIMATE CHARACTERS */
             pac.animate(frameCounter);
 
-            blinky.animate(frameCounter);
-            pinky.animate(frameCounter);
-            inky.animate(frameCounter);
-            clyde.animate(frameCounter);
+            blinky.animate(frameCounter, map);
+            pinky.animate(frameCounter, map);
+            inky.animate(frameCounter, map);
+            clyde.animate(frameCounter, map);
 
 
             /* CHECK IF GAME WON OR LOST */

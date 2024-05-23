@@ -4,67 +4,65 @@ File purpose: contains the function definitions for the ghost class */
 
 #include "Ghost.hpp"
 
-void Ghost::update(Time dt, const Clock& prisonClock, GameMap& theMap, const Vector2i& pacTile, 
+void Ghost::update(Time dt, Clock& prisonClock, GameMap& theMap, const Vector2i& pacTile, 
 	const Vector2i& pacDir, const Vector2i& blinkyPos)
 {
-	// determine if ghost can leave the prison initially, set speed to move
-	if (prisonClock.getElapsedTime().asSeconds() >= mPrisonDelay
-		&& this->inPrisonBox(theMap)) // prevent unnecessary speed assignments
-	{
-		mSpeed = GHOST_CHASE_SPEED; // establish speed = 175.f
-	}
 
 		Vector2i ghostPos(getColIndex(getPosition()), getRowIndex(getPosition())),
 			newDir; // direction that ghost should travel to get to target tile
 
-		// determine if ghost on an intersection
-		bool onIntersection = isOnIntersection(theMap);
-
-		mTarget = findTargetTile(pacTile, pacDir, blinkyPos, theMap); // for pinpointing ghost target tile
-
-		// set new ray bounds 
-		this->computeRayBounds();
-
-		// pacman will hit a wall if he continues, so stop and recenter
-		if (isWallCollision(theMap))
+		// determine if ghost can leave the prison initially, set speed to move
+		if (prisonClock.getElapsedTime().asSeconds() >= mPrisonDelay
+			&& this->inPrisonBox(theMap)) // prevent unnecessary speed assignments
 		{
-			// should pick a valid direction before moving further
-			this->reCenter();
-
-			// find direction of shortest path to target tile
-			newDir = findOptimalPath(theMap); // pass in coordinates to minimize or maximize distance from 
-
-			// mark current tile as evaluated
-			mLastTileEval = ghostPos;
-
-			// set ghost direction 
-			mDirection = newDir;
+			mSpeed = GHOST_CHASE_SPEED; // establish speed = 175.f
 		}
 
-		// if haven't already evaluated curr tile and on intersection or prison cell
-		if (mLastTileEval != ghostPos && (onIntersection || inPrisonBox(theMap)))
-		{
-			// find direction of shortest path to target tile
-			newDir = findOptimalPath(theMap); // pass in coordinates to minimize or maximize distance from 
 
-			// mark current tile as evaluated
-			mLastTileEval = ghostPos;
+			// determine if ghost on an intersection
+			bool onIntersection = isOnIntersection(theMap);
 
-			// set ghost direction 
-			mDirection = newDir;
+			mTarget = findTargetTile(pacTile, pacDir, blinkyPos, theMap); // for pinpointing ghost target tile
 
-		}
-		else if (ghostPos != mLastTileEval) // if ghost has left the last intersection tile or prison tile
-		{
-			// reset last tile
-			mLastTileEval = Vector2i(0, 0);
-		}
 
-		this->travelMiddlePath(); // to ensure stays centered in path
+			// set new ray bounds 
+			this->computeRayBounds();
 
-		// apply movement 
-		this->move(mSpeed * dt.asSeconds() * static_cast<Vector2f>(mDirection) );
-	
+			// pacman will hit a wall if he continues, so stop and recenter
+			if (isWallCollision(theMap))
+			{
+				// should pick a valid direction before moving further
+				this->reCenter();
+
+				// find direction of shortest path to target tile
+				mDirection = findOptimalPath(theMap); // pass in coordinates to minimize or maximize distance from 
+
+				// mark current tile as evaluated
+				mLastTileEval = ghostPos;
+			}
+
+			// if haven't already evaluated curr tile and on intersection or prison cell
+			if (mLastTileEval != ghostPos && (onIntersection || inPrisonBox(theMap)))
+			{
+				// find direction of shortest path to target tile
+				mDirection = findOptimalPath(theMap); // pass in coordinates to minimize or maximize distance from 
+
+				// mark current tile as evaluated
+				mLastTileEval = ghostPos;
+
+			}
+			else if (ghostPos != mLastTileEval) // if ghost has left the last intersection tile or prison tile
+			{
+				// reset last tile
+				mLastTileEval = Vector2i(0, 0);
+			}
+
+			this->travelMiddlePath(); // to ensure stays centered in path
+
+			// apply movement 
+			this->move(mSpeed * dt.asSeconds() * static_cast<Vector2f>(mDirection));
+
+		
 
 }
 
@@ -73,28 +71,13 @@ Vector2i Ghost::findTargetTile(const Vector2i& pacTile, const Vector2i& pacDir, 
 {
 	Vector2i target;
 
-	if (!mIsAlive) // if ghost is dead
+	//if (!mIsAlive) // if ghost is dead, go back to spawn tile
+	//{
+	//	target = mSpawnTile; 
+	//}
+	if (mMode == 1) // chase
 	{
-		if (mAIType == 1) // inky = Blue
-		{
-			target = Vector2i(GHOST_SPAWN_X_B, GHOST_SPAWN_Y);
-		}
-		else if (mAIType == 2) // pinky = Pink
-		{
-			target = Vector2i(GHOST_SPAWN_X_P, GHOST_SPAWN_Y);
-		}
-		else if (mAIType == 3) // blinky = Red
-		{
-			target = Vector2i(GHOST_SPAWN_X_R, GHOST_SPAWN_Y);
-		}
-		else // AI type = 4, clyde = Orange
-		{
-			target = Vector2i(GHOST_SPAWN_X_O, GHOST_SPAWN_Y);
-		}
-	}
-	else if (mMode == 1) // chase
-	{
-		if (inPrisonBox(theMap)) // if in prison
+		if (inPrisonBox(theMap) || !mIsAlive) // if in the prison or not alive
 		{
 			if (mAIType == 3 || mAIType == 4) // clyde or blinky target to escape prison
 				target = Vector2i(10, 3);
@@ -218,6 +201,27 @@ bool Ghost::inPrisonBox(GameMap& theMap)
 	return theMap[ghostRow][ghostCol].getIsPassable() == 3; // if the passable value of the cell is 3
 }
 
+// purpose: returns true or false depending if ghost is on it's spawn point
+bool Ghost::onSpawnPoint() const
+{
+	Vector2i currPos(getColIndex(getPosition()), getRowIndex(getPosition())),
+		spawnCell(0, 0); // init vars
+
+	spawnCell.y = GHOST_SPAWN_Y / CELL_SIZE;
+
+	// determine spawn cell coords based on ghost type (AI)
+	if (mAIType == 1) // blue 
+		spawnCell.x = (GHOST_SPAWN_X_B / CELL_SIZE) - 1;
+	else if (mAIType == 2) // pink
+		spawnCell.x = (GHOST_SPAWN_X_P / CELL_SIZE) + 1;
+	else if (mAIType == 3) // red 
+		spawnCell.x = GHOST_SPAWN_X_R / CELL_SIZE;
+	else // orange, Ai type = 4 
+		spawnCell.x = GHOST_SPAWN_X_O / CELL_SIZE;
+
+		return currPos == spawnCell; // is ghost's curr position == to it's spawn cell?
+}
+
 // finds the valid directions that a ghost may travel (based on walls) - returns a std::vector of those directions
 vector<Vector2i> Ghost::findValidDirs(GameMap& theMap)
 {
@@ -231,13 +235,22 @@ vector<Vector2i> Ghost::findValidDirs(GameMap& theMap)
 	{
 		cellInDirection = ghostPos + directions[i]; // evaluate cell in direction 
 
-		// conditions for all modes excluding when ghost is eaten
-		if (theMap[cellInDirection.y][cellInDirection.x].getIsPassable() != 1 // if next cell is not a wall 
-			&& !( theMap[cellInDirection.y][cellInDirection.x].getIsPassable() == 3 && !inPrisonBox(theMap)) // if not trying to enter prison from outside
-			&& directions[i] != -mDirection) // not making 180 degree turn
+		
+		// if ghost is eaten - may enter prison but not hit wall or turn around
+		if (!mIsAlive 
+			&& theMap[cellInDirection.y][cellInDirection.x].getIsPassable() != 1 
+			&& directions[i] != -mDirection)
 		{
 			validDirs.push_back(directions[i]); // include curr direction as a valid dir
 		}
+		// in all other cases independent of mode or other factors - cannot go back into prison [from outside], turn around or hit a wall 
+		else if (theMap[cellInDirection.y][cellInDirection.x].getIsPassable() != 1
+			&& !(theMap[cellInDirection.y][cellInDirection.x].getIsPassable() == 3 && !inPrisonBox(theMap))
+			&& directions[i] != -mDirection)
+		{
+			validDirs.push_back(directions[i]);
+		}
+		
 	}
 
 	return validDirs;
@@ -322,9 +335,118 @@ void Ghost::checkModeTimer(int level)
 
 // OVERRIDE CHARACTER CLASS PURE VIRTUAL FUNCT.
 // purpose: animates ghost based on mode (frightened/not frightenened), alive state, and current direction of travel
-void Ghost::animate(int frameCounter)
+void Ghost::animate(int frameCounter, GameMap& theMap)
 {
+	if (onSpawnPoint()) // if ghost on spawn point
+	{
+		// loop between bouncing up and down within the cell
+		if (frameCounter % 8 < 4) // upwards orientation
+		{
+			if (mAIType == 1) // blue 
+			{
+				this->setTextureRect(IntRect(619, 4, 192, 171));
+			}
+			else if (mAIType == 2) // pink
+			{
+				this->setTextureRect(IntRect(218, 385, 187, 174));
+			}
+			else if (mAIType == 3) // red 
+			{
+				this->setTextureRect(IntRect(214, 4, 196, 171));
+			}
+			else // orange, Ai type = 4 
+			{
+				this->setTextureRect(IntRect(619, 384, 192, 170));
+			}
+		}
+		else // downwards orientation
+		{
+			if (mAIType == 1) // blue 
+			{
+				this->setTextureRect(IntRect(423, 186, 192, 174));
+			}
+			else if (mAIType == 2) // pink 
+			{
+				this->setTextureRect(IntRect(24, 560, 192, 189));
+			}
+			else if (mAIType == 3) // red 
+			{
+				this->setTextureRect(IntRect(28, 184, 192, 183));
+			}
+			else // orange, Ai type = 4 
+			{
+				this->setTextureRect(IntRect(422, 565, 197, 179));
+			}
+		}
+	}
+	else if (!mIsAlive) // if ghost is dead
+	{
+		if (mDirection == Direction::DOWN)
+			this->setTextureRect(IntRect(841, 320, 118, 125));
+		else if (mDirection == Direction::UP)
+			this->setTextureRect(IntRect(837, 10, 128, 127));
+		else if (mDirection == Direction::LEFT)
+			this->setTextureRect(IntRect(832, 224, 137, 110));
+		else // right
+			this->setTextureRect(IntRect(838, 119, 130, 117));
+
+	}
+	else if (mMode == 3)
+	{
+		this->setTextureRect(IntRect(832, 456, 193, 169));
+
+		// loop between blue/white frightened face if <0.5 second of frightened mode left
+		if ((float)mModeTimer - mModeClock.getElapsedTime().asSeconds() <= 2 && frameCounter % 6 > 3) // white face
+			this->setTextureRect(IntRect(807, 626, 187, 164));
+			
+	}
+	else if (mDirection == Direction::UP) // animation for moving up
+	{
+			if (mAIType == 1) // blue 
+				this->setTextureRect(IntRect(619, 4, 192, 171));
+			else if (mAIType == 2) // pink
+				this->setTextureRect(IntRect(218, 385, 187, 174));
+			else if (mAIType == 3) // red 
+				this->setTextureRect(IntRect(214, 4, 196, 171));
+			else // orange, Ai type = 4 
+				this->setTextureRect(IntRect(619, 384, 192, 170));
+	}
+	else if (mDirection == Direction::DOWN) // animation moving down
+	{
+		if (mAIType == 1) // blue 
+			this->setTextureRect(IntRect(423, 186, 192, 174));
+		else if (mAIType == 2) // pink 
+			this->setTextureRect(IntRect(24, 560, 192, 189));
+		else if (mAIType == 3) // red 
+			this->setTextureRect(IntRect(28, 184, 192, 183));
+		else // orange, Ai type = 4
+			this->setTextureRect(IntRect(422, 565, 197, 179));
+	}
+	else if (mDirection == Direction::LEFT) // animation moving down
+	{
+		if (mAIType == 1) // blue 
+			this->setTextureRect(IntRect(611, 194, 193, 170));
+		else if (mAIType == 2) // pink 
+			this->setTextureRect(IntRect(217, 568, 188, 169));
+		else if (mAIType == 3) // red 
+			this->setTextureRect(IntRect(213, 193, 191, 170));
+		else // orange, Ai type = 4
+			this->setTextureRect(IntRect(619, 578, 180, 165));
+	}
+	else if (mDirection == Direction::RIGHT) // animation moving down
+	{
+		if (mAIType == 1) // blue 
+			this->setTextureRect(IntRect(422, 10, 189, 166));
+		else if (mAIType == 2) // pink 
+			this->setTextureRect(IntRect(24, 383, 197, 172));
+		else if (mAIType == 3) // red 
+			this->setTextureRect(IntRect(21, 9, 201, 162));
+		else // orange, Ai type = 4
+			this->setTextureRect(IntRect(421, 390, 201, 166));
+	}
 
 }
+
+
 
 
