@@ -33,9 +33,6 @@ public:
 	GameTile* operator [](int index);
 
 
-	
-
-
 private:
 
 	GameTile mTileArr[MAP_HEIGHT][MAP_WIDTH]; // array to create paths, walls etc.

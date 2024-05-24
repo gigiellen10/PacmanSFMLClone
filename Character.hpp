@@ -29,8 +29,6 @@ public:
 
 	virtual bool isDeath(const vector<FloatRect>& enemyPositions);
 
-	//virtual bool isNearCenter(GameMap& theMap) const; // checks if entity is near center of a particular cell - for recentering
-
 	// constructor - takes the size of the character, the texture, and spawn points in x and y coords
 	Character(const Texture* charTexture, float spawnX, float spawnY,
 		float newSpeed = 0.f, const Vector2f& charSize = Vector2f(90.f, 90.f));
@@ -44,11 +42,14 @@ public:
 
 	void setSpeed(float newSpeed) { mSpeed = newSpeed; }
 
+	void setJustDied(bool isJustDead) { mJustDied = isJustDead; }
+
 	LineSegment getRay() const { return mRay; }
 
 
 	// DATA MEMBERS - public so can be inherited by derived classes
 	bool mIsAlive; // indicates if character still alive
+	bool mJustDied; // if character died within last iteration of game loop, initiates death logic
 	float mSpeed; // determines speed of smooth movement
 	Vector2i mDirection; // current direction of entity
 	LineSegment mRay; // checks collisions in current direction of travel

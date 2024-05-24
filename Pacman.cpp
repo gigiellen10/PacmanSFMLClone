@@ -115,24 +115,19 @@ bool Pacman::isValidDirection(bool onIntersection, const Vector2i desiredDirecti
 
 		if (desiredDirection == Direction::LEFT && // if col to left is not a wall 
 			theMap[currRow][currCol - 1].getIsPassable() != 1)
-		{
 			return true;
-		}
+
 		else if (desiredDirection == Direction::RIGHT && // if col to right is not a wall 
-			theMap[currRow][currCol + 1].getIsPassable() != 1)
-		{
-			return true;
-		}
+				theMap[currRow][currCol + 1].getIsPassable() != 1)
+				return true;
+
 		else if (desiredDirection == Direction::DOWN && // if col down is not a wall or prison cell
 			theMap[currRow + 1][currCol].getIsPassable() != 1)
-		{
-			return true;
-		}
+				return true;
+
 		else if (desiredDirection == Direction::UP && // if col up is not a wall 
 			theMap[currRow - 1][currCol].getIsPassable() != 1)
-		{
-			return true;
-		}
+				return true;
 
 	}
 	else // not on an intersection point, the only two valid directions are forward/back or up/down, respectively
@@ -142,9 +137,8 @@ bool Pacman::isValidDirection(bool onIntersection, const Vector2i desiredDirecti
 		if (mDirection == Vector2i(-desiredDirection.x, -desiredDirection.y) || // adding a (-) reverses the direction vector
 			(( this->getPosition() == Vector2f(PAC_SPAWN_X, PAC_SPAWN_Y) )
 			&& (desiredDirection == Direction::LEFT || desiredDirection == Direction::RIGHT) ) )  // if at spawn point, can only move left or right!!
-		{
-			return true;
-		}
+				return true;
+		
 	}
 
 	return false;
@@ -152,7 +146,7 @@ bool Pacman::isValidDirection(bool onIntersection, const Vector2i desiredDirecti
 }
 
 
-// OVERRIDING CHARACTER PURE VIRTUAL FUNCT!! 
+
 // purpose: alternates between 2 mouth states based on how many frames elapsed; adjusts texture to display accordingly
 void Pacman::animate(int frameCounter)
 {

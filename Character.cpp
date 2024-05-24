@@ -19,6 +19,8 @@ Character::Character(const Texture* charTexture, float spawnX, float spawnY,
 
 	mDirection = Direction::STOP; // initially static/no movement
 
+	mJustDied = false;
+
 }
 
 // determines if character about to hit a wall 

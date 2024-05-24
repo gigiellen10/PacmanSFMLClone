@@ -9,13 +9,12 @@ File purpose: this file contains main() */
 int main()
 {
 
-    srand((unsigned int)time(NULL));
-
     RenderWindow window(VideoMode(MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS), "Genevieve's Pacman Clone!!");
     window.setFramerateLimit(60); // normalize the framerate to 60 fps
 
-        bool isWon = false, // if game won
-            pacDeath = false; 
+    bool isWon = false, // if game won
+        pacDeath = false, // if pac dies
+        justDied = false;
 
         int frameCounter = 0, // incremented at every iteration of game loop (each frame) - used for animation
             isPeletEaten = 0, // if pac eats a pelet
@@ -31,8 +30,6 @@ int main()
         Font scoreFont; // font for displaying score in top left corner
         scoreFont.loadFromFile("assets\\emulogic-font\\Emulogic-zrEw.ttf");
         
-
-
         // ghost prison gate
         RectangleShape gate(Vector2f(180.f, 15.f));
 
@@ -44,8 +41,8 @@ int main()
             blinky(&ghostStates, (float)GHOST_SPAWN_X_R, (float)GHOST_SPAWN_Y, 3);
 
         Clock deltaClock, // for calculating delta time, time elapsed per this level;
-            prisonClock; // for delaying ghost release from prison
-          
+            prisonClock, // for delaying ghost release from prison
+            deathTimer;
 
         Time deltaTime;
 
@@ -87,27 +84,57 @@ int main()
             /* UPDATE STATE OF CHARACTERS AND/OR BOARD */
             gate.setPosition(900, 360);
 
-            // update and animate pac
+            // update pac
             pac.movement(deltaTime, map);
-            //pac.animate(frameCounter); // switch between open/closed mouth as pac moves
         
-            
-            // update ghosts
-            blinky.update(deltaTime, prisonClock, map,
-                Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
-                Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+            // update ghosts - if alive, move as normal; if dead, initiate death animation/sequence
+            if (blinky.getIsAlive())
+            {
+                blinky.update(deltaTime, prisonClock, map,
+                    Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                    Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+            }
+            else
+            {
+                blinky.dead(deltaTime, map);
+                blinky.setJustDied(false);
+            }
 
-            pinky.update(deltaTime, prisonClock, map,
-                Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
-                Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+            if (pinky.getIsAlive())
+            {
+                pinky.update(deltaTime, prisonClock, map,
+                    Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                    Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+            }
+            else
+            {
+                pinky.dead(deltaTime, map);
+                pinky.setJustDied(false);
+            }
 
-            inky.update(deltaTime, prisonClock, map,
-                Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
-                Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+            if (inky.getIsAlive())
+            {
+                inky.update(deltaTime, prisonClock, map,
+                    Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                    Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+            }
+            else
+            {
+                inky.dead(deltaTime, map);
+                inky.setJustDied(false);
+            }
 
-            clyde.update(deltaTime, prisonClock, map,
-                Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
-                Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+            if (clyde.getIsAlive())
+            {
+                clyde.update(deltaTime, prisonClock, map,
+                    Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), pac.getDirection(),
+                    Vector2i(getColIndex(blinky.getPosition()), getRowIndex(blinky.getPosition())));
+            }
+            else
+            {
+                clyde.dead(deltaTime, map);
+                clyde.setJustDied(false);
+            }
 
             // determine if pac collided with a pelet
             isPeletEaten = map.updatePelets(pac.getGlobalBounds()); 
@@ -125,34 +152,34 @@ int main()
                 if (!inky.onSpawnPoint())
                 {
                     inky.setMode(3);
+                    inky.setIsModeSwitch(true);
                     inky.resetModeClock();
-                    inky.setModeTimer(5);
+                    inky.setModeTimer(7);
                     inky.setSpeed(GHOST_FRIGHT_SPEED); 
-                    cout << "inky frightened\n";
                 }
                 if (!blinky.onSpawnPoint())
                 {
                     blinky.setMode(3);
+                    blinky.setIsModeSwitch(true);
                     blinky.resetModeClock();
-                    blinky.setModeTimer(5);
-                    inky.setSpeed(GHOST_FRIGHT_SPEED);
-                    cout << "blinky frightened\n";
+                    blinky.setModeTimer(7);
+                    blinky.setSpeed(GHOST_FRIGHT_SPEED);
                 }
                 if (!pinky.onSpawnPoint())
                 {
                     pinky.setMode(3);
+                    pinky.setIsModeSwitch(true);
                     pinky.resetModeClock();
-                    pinky.setModeTimer(5);
-                    inky.setSpeed(GHOST_FRIGHT_SPEED);
-                    cout << "pinky frightened\n";
+                    pinky.setModeTimer(7);
+                    pinky.setSpeed(GHOST_FRIGHT_SPEED);
                 }
                 if (!clyde.onSpawnPoint())
                 {
                     clyde.setMode(3);
+                    clyde.setIsModeSwitch(true);
                     clyde.resetModeClock();
-                    clyde.setModeTimer(5);
-                    inky.setSpeed(GHOST_FRIGHT_SPEED);
-                    cout << "lcyde frightened\n";
+                    clyde.setModeTimer(7);
+                    clyde.setSpeed(GHOST_FRIGHT_SPEED);
                 }
             }
 
@@ -162,6 +189,8 @@ int main()
                 inky.isDeath(vector<FloatRect>({ pac.getGlobalBounds() }))) 
             {
                 inky.setIsAlive(false);
+                inky.setJustDied(true);
+                pac.setScore(pac.getScore() + 100); // update pac score, eating ghost = +100 pts
             }
             else if (inky.getMode() != 3
                 && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
@@ -174,6 +203,8 @@ int main()
                 && pinky.isDeath(vector<FloatRect>({ pac.getGlobalBounds() })))
             {
                 pinky.setIsAlive(false);
+                pinky.setJustDied(true);
+                pac.setScore(pac.getScore() + 100);
             }
             else if (pinky.getMode() != 3
                 && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
@@ -186,6 +217,8 @@ int main()
                 && blinky.isDeath(vector<FloatRect>({ pac.getGlobalBounds() })))
             {
                 blinky.setIsAlive(false);
+                blinky.setJustDied(true);
+                pac.setScore(pac.getScore() + 100);
             }
             else if (blinky.getMode() != 3 
                 && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
@@ -197,8 +230,9 @@ int main()
             if (clyde.getMode() == 3 
                 && clyde.isDeath(vector<FloatRect>({ pac.getGlobalBounds() })))
             {
-
                 clyde.setIsAlive(false);
+                clyde.setJustDied(true);
+                pac.setScore(pac.getScore() + 100);
             }
             else if (clyde.getMode() != 3
                 && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
@@ -217,11 +251,8 @@ int main()
             }
             else // inky dead
             {
-                // set speed to double current speed
-                inky.setSpeed(300.f);
-
-                // set PrisonDelay to 4 seconds
-                inky.setPrisonDelay(4);
+                // increase speed
+                inky.setSpeed(400.f);
 
                 // set mode back to default mode - chase
                 inky.setMode(1);
@@ -233,11 +264,8 @@ int main()
             }
             else // pinky dead
             {
-                // set speed to double current speed
-                pinky.setSpeed(300.f);
-
-                // set PrisonDelay to 4 seconds
-                pinky.setPrisonDelay(4);
+                // increase speed
+                pinky.setSpeed(400.f);
 
                 // set mode back to default mode - chase
                 pinky.setMode(1);
@@ -249,11 +277,8 @@ int main()
             }
             else // blinky dead
             {
-                // set speed to double current speed
-                blinky.setSpeed(300.f);
-
-                // set PrisonDelay to 4 seconds
-                blinky.setPrisonDelay(4);
+                // increase speed
+                blinky.setSpeed(400.f);
 
                 // set mode back to default mode - chase
                 blinky.setMode(1);
@@ -266,11 +291,8 @@ int main()
             else // clyde dead
             {
 
-                // set speed to double current speed
-                clyde.setSpeed(300.f);
-
-                // set PrisonDelay to 4 seconds
-                clyde.setPrisonDelay(4);
+                // increase speed
+                clyde.setSpeed(400.f);
 
                 // set mode back to default mode - chase
                 clyde.setMode(1);

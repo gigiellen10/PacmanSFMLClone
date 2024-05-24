@@ -4,6 +4,10 @@ File purpose: contains the function definitions for the ghost class */
 
 #include "Ghost.hpp"
 
+// purpose: main movement function; updates ghost position when alive (death() function updates move. for dead)
+// accepts: deltaTime (time between frames), time ghosts have been in prison at begin of game, the gamemap, 
+// pacman's tile coordinates, pacman's direction, blinky's position coords, and (true/false) if ghost is switching modes on this frame
+
 void Ghost::update(Time dt, Clock& prisonClock, GameMap& theMap, const Vector2i& pacTile, 
 	const Vector2i& pacDir, const Vector2i& blinkyPos)
 {
@@ -15,7 +19,7 @@ void Ghost::update(Time dt, Clock& prisonClock, GameMap& theMap, const Vector2i&
 		if (prisonClock.getElapsedTime().asSeconds() >= mPrisonDelay
 			&& this->inPrisonBox(theMap)) // prevent unnecessary speed assignments
 		{
-			mSpeed = GHOST_CHASE_SPEED; // establish speed = 175.f
+			mSpeed = GHOST_CHASE_SPEED; 
 		}
 
 
@@ -24,11 +28,11 @@ void Ghost::update(Time dt, Clock& prisonClock, GameMap& theMap, const Vector2i&
 
 			mTarget = findTargetTile(pacTile, pacDir, blinkyPos, theMap); // for pinpointing ghost target tile
 
-
 			// set new ray bounds 
 			this->computeRayBounds();
 
-			// pacman will hit a wall if he continues, so stop and recenter
+			
+			//  will hit a wall if ghost continues, so stop and recenter
 			if (isWallCollision(theMap))
 			{
 				// should pick a valid direction before moving further
@@ -41,28 +45,84 @@ void Ghost::update(Time dt, Clock& prisonClock, GameMap& theMap, const Vector2i&
 				mLastTileEval = ghostPos;
 			}
 
-			// if haven't already evaluated curr tile and on intersection or prison cell
-			if (mLastTileEval != ghostPos && (onIntersection || inPrisonBox(theMap)))
-			{
-				// find direction of shortest path to target tile
-				mDirection = findOptimalPath(theMap); // pass in coordinates to minimize or maximize distance from 
+			//// turn around if switching modes and within 4 tiles of pac but not in chase mode
+			//if (mIsSwitchingModes 
+			//	&& this->closeToPac(pacTile, 8) 
+			//	&& mMode == 3)
+			//{
+			//	mDirection *= -1; 
+			//}
 
-				// mark current tile as evaluated
-				mLastTileEval = ghostPos;
+			// if (haven't already evaluated curr tile and on intersection or prison cell)
+			else if (mLastTileEval != ghostPos
+					&& (onIntersection || inPrisonBox(theMap)))
+			{
+					// find direction of shortest path to target tile
+					mDirection = findOptimalPath(theMap); // pass in coordinates to minimize or maximize distance from 
+
+					// mark current tile as evaluated
+					mLastTileEval = ghostPos;
 
 			}
-			else if (ghostPos != mLastTileEval) // if ghost has left the last intersection tile or prison tile
+			if (ghostPos != mLastTileEval) // if ghost has left the last intersection tile or prison tile
 			{
-				// reset last tile
-				mLastTileEval = Vector2i(0, 0);
+					// reset last tile
+					mLastTileEval = Vector2i(0, 0);
 			}
+
+				
 
 			this->travelMiddlePath(); // to ensure stays centered in path
 
 			// apply movement 
 			this->move(mSpeed * dt.asSeconds() * static_cast<Vector2f>(mDirection));
 
+}
+
+// purpose: sends ghost back to prison cell with a slight delay before respawns
+void Ghost::dead(Time dt, GameMap& theMap)
+{
+	Vector2i ghostPos(getColIndex(getPosition()), getRowIndex(getPosition())); // ghost's curr x and y coords
+
+	if (mJustDied)
+	{
+		mPrisonDelay = 50; // ghost will idle in prison for 50 calls of this function
+
+		if (mAIType == 3 || mAIType == 4) // clyde or blinky target
+			mTarget = Vector2i(10, 3);
+		else // inky or pinky target
+			mTarget = Vector2i(11, 3);
+	}
+
+	
+	if (ghostPos == mSpawnTile) // if on spawn tile target
+	{
+		this->reCenter(); 
 		
+		// if delay elapsed in prison
+		if (mPrisonDelay == 0)
+		{
+			mIsAlive = true; // set ghost back to alive status so can leave prison
+			mSpeed = 200.f;
+		}
+
+		--mPrisonDelay; // decrease the prisonDelay value each call of dead()
+	}
+	else if (ghostPos == mTarget) // if on tile above prison
+	{
+		mTarget = mSpawnTile; // new target is the spawn tile inside prison
+	}
+	else // ghost is travelling path to prison spawn pt.
+	{
+		if (ghostPos != mLastTileEval) // if haven't already evaluated a direction for that tile
+		{
+			mDirection = findOptimalPath(theMap);
+			mLastTileEval = ghostPos;
+		}
+
+		this->travelMiddlePath();
+		this->move(mSpeed * dt.asSeconds() * static_cast<Vector2f>(mDirection));
+	}
 
 }
 
@@ -71,13 +131,10 @@ Vector2i Ghost::findTargetTile(const Vector2i& pacTile, const Vector2i& pacDir, 
 {
 	Vector2i target;
 
-	//if (!mIsAlive) // if ghost is dead, go back to spawn tile
-	//{
-	//	target = mSpawnTile; 
-	//}
+
 	if (mMode == 1) // chase
 	{
-		if (inPrisonBox(theMap) || !mIsAlive) // if in the prison or not alive
+		if (inPrisonBox(theMap)) // if in the prison
 		{
 			if (mAIType == 3 || mAIType == 4) // clyde or blinky target to escape prison
 				target = Vector2i(10, 3);
@@ -259,11 +316,11 @@ vector<Vector2i> Ghost::findValidDirs(GameMap& theMap)
 void Ghost::checkModeTimer(int level)
 {
 	// if in frightened mode 
-	if (mMode == 3 
+	if (mMode == 3
 		&& mModeClock.getElapsedTime().asSeconds() >= mModeTimer)
 	{
-		cout << "switched from frightened to chase at " << mModeClock.getElapsedTime().asSeconds() << " seconds.\n";
 		mMode = 1; // set mode back to chase mode
+		mIsSwitchingModes = true;
 
 		mSpeed = GHOST_CHASE_SPEED;
 
@@ -276,7 +333,7 @@ void Ghost::checkModeTimer(int level)
 		}
 		else if (level >= 5 && level <= 10) // between levels 5-10
 		{
-			mModeTimer = 15; 
+			mModeTimer = 15;
 		}
 		else // level is > 10
 		{
@@ -287,8 +344,8 @@ void Ghost::checkModeTimer(int level)
 	else if (mMode == 1 // if in chase mode
 		&& mModeClock.getElapsedTime().asSeconds() >= mModeTimer)
 	{
-		cout << "switched from chase to scatter at " << mModeClock.getElapsedTime().asSeconds() << " seconds.\n";
 		mMode = 2; // alternate to scatter mode
+		mIsSwitchingModes = true;
 
 		mSpeed = GHOST_FRIGHT_SPEED;
 
@@ -297,7 +354,7 @@ void Ghost::checkModeTimer(int level)
 		// set time to scatter based on curr level
 		if (level < 5) // levels 1-5
 		{
-			mModeTimer = 6; 
+			mModeTimer = 6;
 		}
 		else if (level >= 5 && level <= 10) // between levels 5-10
 		{
@@ -311,8 +368,8 @@ void Ghost::checkModeTimer(int level)
 	else if (mMode == 2 // if in scatter mode
 		&& mModeClock.getElapsedTime().asSeconds() >= mModeTimer)
 	{
-		cout << "switched from scatter to chase at " << mModeClock.getElapsedTime().asSeconds() << " seconds.\n";
 		mMode = 1; // alternate to chase mode
+		mIsSwitchingModes = true;
 
 		mSpeed = GHOST_CHASE_SPEED;
 
@@ -331,9 +388,12 @@ void Ghost::checkModeTimer(int level)
 			mModeTimer = 20;
 		}
 	}
+	else
+		mIsSwitchingModes = false;
+
 }
 
-// OVERRIDE CHARACTER CLASS PURE VIRTUAL FUNCT.
+
 // purpose: animates ghost based on mode (frightened/not frightenened), alive state, and current direction of travel
 void Ghost::animate(int frameCounter, GameMap& theMap)
 {
@@ -343,40 +403,24 @@ void Ghost::animate(int frameCounter, GameMap& theMap)
 		if (frameCounter % 8 < 4) // upwards orientation
 		{
 			if (mAIType == 1) // blue 
-			{
 				this->setTextureRect(IntRect(619, 4, 192, 171));
-			}
 			else if (mAIType == 2) // pink
-			{
 				this->setTextureRect(IntRect(218, 385, 187, 174));
-			}
 			else if (mAIType == 3) // red 
-			{
 				this->setTextureRect(IntRect(214, 4, 196, 171));
-			}
 			else // orange, Ai type = 4 
-			{
 				this->setTextureRect(IntRect(619, 384, 192, 170));
-			}
 		}
 		else // downwards orientation
 		{
 			if (mAIType == 1) // blue 
-			{
 				this->setTextureRect(IntRect(423, 186, 192, 174));
-			}
 			else if (mAIType == 2) // pink 
-			{
 				this->setTextureRect(IntRect(24, 560, 192, 189));
-			}
 			else if (mAIType == 3) // red 
-			{
 				this->setTextureRect(IntRect(28, 184, 192, 183));
-			}
 			else // orange, Ai type = 4 
-			{
 				this->setTextureRect(IntRect(422, 565, 197, 179));
-			}
 		}
 	}
 	else if (!mIsAlive) // if ghost is dead
@@ -396,7 +440,7 @@ void Ghost::animate(int frameCounter, GameMap& theMap)
 		this->setTextureRect(IntRect(832, 456, 193, 169));
 
 		// loop between blue/white frightened face if <0.5 second of frightened mode left
-		if ((float)mModeTimer - mModeClock.getElapsedTime().asSeconds() <= 2 && frameCounter % 6 > 3) // white face
+		if ((float)mModeTimer - mModeClock.getElapsedTime().asSeconds() <= 2 && frameCounter % 8 > 4) // white face
 			this->setTextureRect(IntRect(807, 626, 187, 164));
 			
 	}
@@ -445,6 +489,22 @@ void Ghost::animate(int frameCounter, GameMap& theMap)
 			this->setTextureRect(IntRect(421, 390, 201, 166));
 	}
 
+}
+
+// purpose: determines if the ghost is within <buffer> number of tiles of pacman in current dir of travel
+// returns: true if within buffer range, false otherwise
+bool Ghost::closeToPac(const Vector2i& pacPos, int buffer)
+{
+	Vector2i ghostPos(getColIndex(getPosition()), getRowIndex(getPosition()));
+
+	if (mDirection == Direction::DOWN)
+		return (ghostPos.y + (mDirection.y * buffer)) >= pacPos.y;
+	else if (mDirection == Direction::UP)
+		return (ghostPos.y + (mDirection.y * buffer)) <= pacPos.y;
+	else if (mDirection == Direction::RIGHT)
+		return (ghostPos.x + (mDirection.x * buffer)) >= pacPos.x;
+	else
+		return (ghostPos.x + (mDirection.x * buffer)) <= pacPos.x;
 }
 
 

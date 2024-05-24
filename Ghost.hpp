@@ -22,6 +22,7 @@ public:
 		mModeClock = Clock(); 
 		mPrisonDelay = 1 * AI; // establish a prison release time delay - may change so red leaves first
 		mSpawnTile = Vector2i(getColIndex(Vector2f(spawnX, spawnY)), getRowIndex(Vector2f(spawnX, spawnY)));
+		mIsSwitchingModes = false; 
 
 		// set texture rectangle based on ghost AI
 		if (AI == 1) // blue
@@ -57,10 +58,14 @@ public:
 	void setTargetTile(Vector2i& newTarget) { mTarget = newTarget; }
 	Vector2i getTargetTile() const { return mTarget; }
 
+	bool getIsModeSwitch() const { return mIsSwitchingModes; }
+	void setIsModeSwitch(bool isSwitch) { mIsSwitchingModes = isSwitch; }
+
 	// game methods 
 	void animate(int frameCounter, GameMap& theMap); 
 
-	void update(Time dt, Clock& prisonClock, GameMap& theMap, const Vector2i& pacTile, const Vector2i& pacDir, const Vector2i& blinkyPos);
+	void update(Time dt, Clock& prisonClock, GameMap& theMap, const Vector2i& pacTile, 
+		const Vector2i& pacDir, const Vector2i& blinkyPos);
 
 	Vector2i findTargetTile(const Vector2i& pacTile, const Vector2i &pacDir, const Vector2i& blinkyPos, GameMap& theMap); 
 
@@ -76,6 +81,10 @@ public:
 
 	void checkModeTimer(int level);
 
+	void dead(Time dt, GameMap& theMap); 
+
+	bool closeToPac(const Vector2i& pacPos, int buffer);
+
 
 private:
 	int mMode; // 1 - chase mode, 2 - scatter mode, 3 - frightened mode (run away from pac) 
@@ -86,6 +95,7 @@ private:
 	int mPrisonDelay; // # seconds delay until exits prison box
 	int mModeTimer; // controlls how long ghost is in a certain mode based on level or power pelet
 	Clock mModeClock; // reset each time a ghost's mode is switched
+	bool mIsSwitchingModes; // if the ghost switches modes on an iteration of game loop
 };
 
 
