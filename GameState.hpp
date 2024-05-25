@@ -41,6 +41,10 @@ File purpose: include #define constants and common SFML libraries needed through
 #include <vector> // for vector of pelets
 #include <math.h> // for pow() function
 
+// for sleep() 
+#include <thread>
+#include <chrono>
+
 using std::string;
 using std::cout;
 using std::endl;

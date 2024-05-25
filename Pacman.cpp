@@ -150,24 +150,35 @@ bool Pacman::isValidDirection(bool onIntersection, const Vector2i desiredDirecti
 // purpose: alternates between 2 mouth states based on how many frames elapsed; adjusts texture to display accordingly
 void Pacman::animate(int frameCounter)
 {
-	if (mSpeed != 0.f && this->getPosition() != Vector2f(PAC_SPAWN_X, PAC_SPAWN_Y)) // if pacman is actively moving and not at the spawn point
+	// if pacman is actively moving and not at the spawn point; or not alive
+	if ((mSpeed != 0.f && this->getPosition() != Vector2f(PAC_SPAWN_X, PAC_SPAWN_Y)) || !mIsAlive) 
 	{
-		if (frameCounter % 2 < 1) // alternate between open and closed mouth states
+		if (mIsAlive && frameCounter % 2 < 1) // alternate between open and closed mouth states
 		{
 			if (mIndex > 4) // so does not go outside bounds of array (size 5)
 				mIndex = 0;
 			else
 				++mIndex;
 		}
+		else if (!mIsAlive && frameCounter % 2 < 1) // pac is dead 
+		{
+			if (mJustDied) // if died within last frame
+			{
+				mIndex = 0; // start as whole circle
+				setRotation(0); // set rotation back to 0 deg
+			}
+			else if (mIndex < 5) // valid range for animation is between indexes 5-16
+				mIndex = 5;
+			else if (mIndex < 16)
+				++mIndex;
+			else
+			{
+				std::this_thread::sleep_for(std::chrono::seconds(3)); // sleep for 3 seconds then display loosing screen
+			}
+			
+		}
 
 		this->setTextureRect(animationStates[mIndex]);
-		
-		/*	this->setTextureRect(sf::IntRect(250, 0, 200, 200));
-		}
-		else
-		{
-			this->setTextureRect(sf::IntRect(460, 0, 180, 200));
-		}*/
 	}
 	
 }

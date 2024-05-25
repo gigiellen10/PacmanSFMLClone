@@ -79,7 +79,7 @@ public:
 
 	vector<Vector2i> findValidDirs(GameMap& theMap);
 
-	void checkModeTimer(int level);
+	void checkModeTimer(int level, const Vector2i& pacPos);
 
 	void dead(Time dt, GameMap& theMap); 
 

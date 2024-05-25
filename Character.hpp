@@ -41,12 +41,14 @@ public:
 	void setDirection(Vector2i newDir) { mDirection = newDir; }
 
 	void setSpeed(float newSpeed) { mSpeed = newSpeed; }
+	float getSpeed() const { return mSpeed; }
 
 	void setJustDied(bool isJustDead) { mJustDied = isJustDead; }
+	bool getJustDied() const { return mJustDied; }
 
 	LineSegment getRay() const { return mRay; }
 
-
+protected:
 	// DATA MEMBERS - public so can be inherited by derived classes
 	bool mIsAlive; // indicates if character still alive
 	bool mJustDied; // if character died within last iteration of game loop, initiates death logic

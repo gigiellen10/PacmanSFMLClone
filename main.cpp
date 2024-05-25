@@ -8,13 +8,17 @@ File purpose: this file contains main() */
 
 int main()
 {
+    // per each level, reset mIndex for pacman to 0
 
     RenderWindow window(VideoMode(MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS), "Genevieve's Pacman Clone!!");
     window.setFramerateLimit(60); // normalize the framerate to 60 fps
 
-    bool isWon = false, // if game won
-        pacDeath = false, // if pac dies
+    bool pacDeath = false, // if pac dies
         justDied = false;
+
+    // game is initally in progress
+    enum GameState {inProgress, won, lost};
+    GameState gameStatus = inProgress; 
 
         int frameCounter = 0, // incremented at every iteration of game loop (each frame) - used for animation
             isPeletEaten = 0, // if pac eats a pelet
@@ -85,9 +89,17 @@ int main()
             gate.setPosition(900, 360);
 
             // update pac
-            pac.movement(deltaTime, map);
-        
-            // update ghosts - if alive, move as normal; if dead, initiate death animation/sequence
+            if (pac.getIsAlive()) // move if he's alive
+                pac.movement(deltaTime, map);
+
+            // reset justDied variable for this frame if true
+            if (pac.getJustDied())
+            {
+                pac.setJustDied(false);
+                cout << "reset just died" << endl;
+            }
+         
+            // update ghosts - if alive and pac isn't dead, move as normal; if dead, initiate death animation/sequence
             if (blinky.getIsAlive())
             {
                 blinky.update(deltaTime, prisonClock, map,
@@ -173,9 +185,13 @@ int main()
             }
             else if (inky.getMode() != 3
                 && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
-                    blinky.getGlobalBounds(), clyde.getGlobalBounds() }))) // check if pac collided with any ghosts) // if not frightened, pac can die
+                    blinky.getGlobalBounds(), clyde.getGlobalBounds() }))) 
             {
                 pac.setIsAlive(false);
+                pac.setSpeed(0.f); // execute death sequence/animation
+                pac.setJustDied(true);
+
+                gameStatus = lost;
             }
 
             if (pinky.getMode() == 3 
@@ -185,11 +201,15 @@ int main()
                 pinky.setJustDied(true);
                 pac.setScore(pac.getScore() + 100);
             }
-            else if (pinky.getMode() != 3
+            else if (pinky.getMode() != 3 
                 && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
                     blinky.getGlobalBounds(), clyde.getGlobalBounds() }))) // check if pac collided with any ghosts) // if not frightened, pac can die
             {
                 pac.setIsAlive(false);
+                pac.setSpeed(0.f); // execute death sequence/animation
+                pac.setJustDied(true);
+
+                gameStatus = lost;
             }
 
             if (blinky.getMode() == 3 
@@ -204,6 +224,10 @@ int main()
                     blinky.getGlobalBounds(), clyde.getGlobalBounds() }))) // check if pac collided with any ghosts) // if not frightened, pac can die
             {
                 pac.setIsAlive(false);
+                pac.setSpeed(0.f); // execute death sequence/animation
+                pac.setJustDied(true);
+
+                gameStatus = lost;
             }
 
             if (clyde.getMode() == 3 
@@ -213,11 +237,15 @@ int main()
                 clyde.setJustDied(true);
                 pac.setScore(pac.getScore() + 100);
             }
-            else if (clyde.getMode() != 3
+            else if (clyde.getMode() != 3 
                 && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
                     blinky.getGlobalBounds(), clyde.getGlobalBounds() }))) // check if pac collided with any ghosts) // if not frightened, pac can die
             {
                 pac.setIsAlive(false);
+                pac.setSpeed(0.f); // execute death sequence/animation
+                pac.setJustDied(true);
+
+                gameStatus = lost;
             }
 
             
@@ -226,7 +254,7 @@ int main()
 
             if (inky.getIsAlive())
             {
-                inky.checkModeTimer(level);
+                inky.checkModeTimer(level, Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())));
             }
             else // inky dead
             {
@@ -239,7 +267,7 @@ int main()
 
             if (pinky.getIsAlive())
             {
-                pinky.checkModeTimer(level);
+                pinky.checkModeTimer(level, Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())));
             }
             else // pinky dead
             {
@@ -252,7 +280,7 @@ int main()
           
             if (blinky.getIsAlive())
             {
-                blinky.checkModeTimer(level);
+                blinky.checkModeTimer(level, Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())));
             }
             else // blinky dead
             {
@@ -265,11 +293,10 @@ int main()
 
             if (clyde.getIsAlive())
             {
-                clyde.checkModeTimer(level);
+                clyde.checkModeTimer(level, Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())));
             }
             else // clyde dead
             {
-
                 // increase speed
                 clyde.setSpeed(400.f);
 
@@ -287,14 +314,16 @@ int main()
 
 
             /* CHECK IF GAME WON OR LOST */
-            if (!pac.getIsAlive())
+            if (gameStatus == lost) // if pac died within last frame
             {
-                isWon = false;
+                // stop ghosts in their tracks
+                inky.setSpeed(0.f);
+                pinky.setSpeed(0.f);
+                blinky.setSpeed(0.f);
+                clyde.setSpeed(0.f);
             }
-            //else if (pac.getScore() == 1090) // winning score, need to change based on number power pels
-            //{
-            //    isWon = true;
-            //}
+
+            // check won here
 
             /* CLEAR WINDOW AND DRAW NEW GAMESTATE */
             window.clear();

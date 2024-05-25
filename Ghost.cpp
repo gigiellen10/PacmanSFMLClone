@@ -307,7 +307,7 @@ vector<Vector2i> Ghost::findValidDirs(GameMap& theMap)
 	return validDirs;
 }
 
-void Ghost::checkModeTimer(int level)
+void Ghost::checkModeTimer(int level, const Vector2i& pacPos)
 {
 	// if in frightened mode 
 	if (mMode == 3
@@ -322,42 +322,34 @@ void Ghost::checkModeTimer(int level)
 
 		// set time to chase based on curr level
 		if (level < 5) // levels 1-5
-		{
 			mModeTimer = 7; // ghosts chase pacman for 7 seconds, longer as levels higher
-		}
+
 		else if (level >= 5 && level <= 10) // between levels 5-10
-		{
 			mModeTimer = 15;
-		}
+
 		else // level is > 10
-		{
 			mModeTimer = 20;
-		}
 
 	}
-	else if (mMode == 1 // if in chase mode
-		&& mModeClock.getElapsedTime().asSeconds() >= mModeTimer)
+	else if (mMode == 1 // if in chase mode and clyde is within 8 cells of pac or the mode clock has run out
+		&& ((mAIType == 4 && this->closeToPac(pacPos, 8)) || mModeClock.getElapsedTime().asSeconds() >= mModeTimer))
 	{
 		mMode = 2; // alternate to scatter mode
 		mIsSwitchingModes = true;
 
-		mSpeed = GHOST_FRIGHT_SPEED;
+		mSpeed = GHOST_CHASE_SPEED;
 
 		mModeClock.restart();
 
 		// set time to scatter based on curr level
 		if (level < 5) // levels 1-5
-		{
 			mModeTimer = 6;
-		}
+
 		else if (level >= 5 && level <= 10) // between levels 5-10
-		{
 			mModeTimer = 4;
-		}
+
 		else // level is > 10
-		{
 			mModeTimer = 2;
-		}
 	}
 	else if (mMode == 2 // if in scatter mode
 		&& mModeClock.getElapsedTime().asSeconds() >= mModeTimer)
@@ -370,17 +362,13 @@ void Ghost::checkModeTimer(int level)
 		mModeClock.restart();
 
 		if (level < 5) // levels 1-5
-		{
 			mModeTimer = 7; // ghosts chase pacman for 7 seconds, longer as levels higher
-		}
+
 		else if (level >= 5 && level <= 10) // between levels 5-10
-		{
 			mModeTimer = 15;
-		}
+
 		else // level is > 10
-		{
 			mModeTimer = 20;
-		}
 	}
 	else
 		mIsSwitchingModes = false;
@@ -409,10 +397,13 @@ void Ghost::animate(int frameCounter, GameMap& theMap)
 		{
 			if (mAIType == 1) // blue 
 				this->setTextureRect(IntRect(423, 186, 192, 174));
+
 			else if (mAIType == 2) // pink 
 				this->setTextureRect(IntRect(24, 560, 192, 189));
+
 			else if (mAIType == 3) // red 
 				this->setTextureRect(IntRect(28, 184, 192, 183));
+
 			else // orange, Ai type = 4 
 				this->setTextureRect(IntRect(422, 565, 197, 179));
 		}

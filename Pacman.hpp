@@ -16,14 +16,15 @@ public:
 		: Character(pacTexture, PAC_SPAWN_X, PAC_SPAWN_Y)
 	{
 
-		for (int i = 0; i < 5; ++i)
+		for (int i = 0, j = 0, k = 0; i < 17; ++i, ++k)
 		{
-			animationStates[i] = IntRect(i * 16, 0, 16, 17);
-		}
+			if (i == 5)
+			{
+				j = 17;
+				k = 0;
+			}
 
-		for (int i = 0; i < 12; ++i)
-		{
-			deathSequence[i] = IntRect(i * 16, 17, 16, 17);
+			animationStates[i] = IntRect(k * 16, j, 16, 17);
 		}
 
 		this->setTextureRect(animationStates[0]); // original state has no open mouth (1st state on sprite file)
@@ -36,6 +37,8 @@ public:
 
 	int getScore() const { return mScore; }
 	void setScore(int newScore) { mScore = newScore; }
+
+	int getIndex() const { return mIndex; }
 
 	/* movement and wall collision checking */
 
@@ -50,7 +53,6 @@ public:
 private:
 	int mScore; // pacman's current score (each pellet = 10 pts)
 	int mIndex; // animation states index in array
-	IntRect animationStates[5]; // texture rects with regular mouth animation
-	IntRect deathSequence[12]; // texture rects with pacman death animation
+	IntRect animationStates[17]; // texture rects with regular mouth animation, including death sequence
 };
 
