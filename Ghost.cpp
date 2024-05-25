@@ -45,17 +45,9 @@ void Ghost::update(Time dt, Clock& prisonClock, GameMap& theMap, const Vector2i&
 				mLastTileEval = ghostPos;
 			}
 
-			//// turn around if switching modes and within 4 tiles of pac but not in chase mode
-			//if (mIsSwitchingModes 
-			//	&& this->closeToPac(pacTile, 8) 
-			//	&& mMode == 3)
-			//{
-			//	mDirection *= -1; 
-			//}
-
 			// if (haven't already evaluated curr tile and on intersection or prison cell)
-			else if (mLastTileEval != ghostPos
-					&& (onIntersection || inPrisonBox(theMap)))
+			if ((mLastTileEval != ghostPos
+					&& (onIntersection || inPrisonBox(theMap))) || mIsSwitchingModes)
 			{
 					// find direction of shortest path to target tile
 					mDirection = findOptimalPath(theMap); // pass in coordinates to minimize or maximize distance from 
@@ -64,6 +56,7 @@ void Ghost::update(Time dt, Clock& prisonClock, GameMap& theMap, const Vector2i&
 					mLastTileEval = ghostPos;
 
 			}
+
 			if (ghostPos != mLastTileEval) // if ghost has left the last intersection tile or prison tile
 			{
 					// reset last tile
@@ -98,6 +91,8 @@ void Ghost::dead(Time dt, GameMap& theMap)
 	if (ghostPos == mSpawnTile) // if on spawn tile target
 	{
 		this->reCenter(); 
+
+		mIsSwitchingModes = false; // reset so cannot change directions/ turn 180 deg
 		
 		// if delay elapsed in prison
 		if (mPrisonDelay == 0)
@@ -130,7 +125,6 @@ void Ghost::dead(Time dt, GameMap& theMap)
 Vector2i Ghost::findTargetTile(const Vector2i& pacTile, const Vector2i& pacDir, const Vector2i& blinkyPos, GameMap& theMap)
 {
 	Vector2i target;
-
 
 	if (mMode == 1) // chase
 	{
@@ -505,6 +499,28 @@ bool Ghost::closeToPac(const Vector2i& pacPos, int buffer)
 		return (ghostPos.x + (mDirection.x * buffer)) >= pacPos.x;
 	else
 		return (ghostPos.x + (mDirection.x * buffer)) <= pacPos.x;
+}
+
+// purpose: adjusts ghost settings to properly initiate frightened mode
+void Ghost::frightened(int level)
+{
+	mMode = 3; // frightened mode
+
+	mIsSwitchingModes = true;
+
+	mModeClock.restart();
+
+	mSpeed = GHOST_FRIGHT_SPEED;
+
+	// set frightened mode timer - higher levels = shorter time available to be eaten
+	if (level < 5) // levels 1-5
+		mModeTimer = 7; // ghosts chase pacman for 7 seconds, longer as levels higher
+
+	else if (level >= 5 && level <= 10) // between levels 5-10
+		mModeTimer = 5;
+
+	else // level is > 10
+		mModeTimer = 3;
 }
 
 

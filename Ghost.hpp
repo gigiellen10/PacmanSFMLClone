@@ -84,6 +84,8 @@ public:
 	void dead(Time dt, GameMap& theMap); 
 
 	bool closeToPac(const Vector2i& pacPos, int buffer);
+	
+	void frightened(int level);
 
 
 private:

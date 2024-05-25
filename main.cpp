@@ -24,7 +24,7 @@ int main()
         ghostStates; 
        
         // load pacman and ghost states from file for animation
-        mouthStates.loadFromFile("assets\\PacmanSprites.png"); 
+        mouthStates.loadFromFile("assets\\pacAnimationStates.png"); 
         ghostStates.loadFromFile("assets\\GhostStates.png");
 
         Font scoreFont; // font for displaying score in top left corner
@@ -148,39 +148,18 @@ int main()
                 pac.setScore(pac.getScore() + 50); // power pelet is 50 pts
 
                 
-                // initiate and spend 4 seconds in frightened mode for ghosts if not on spawn point
+                // initiate frightened mode for ghosts if not on spawn point
                 if (!inky.onSpawnPoint())
-                {
-                    inky.setMode(3);
-                    inky.setIsModeSwitch(true);
-                    inky.resetModeClock();
-                    inky.setModeTimer(7);
-                    inky.setSpeed(GHOST_FRIGHT_SPEED); 
-                }
+                    inky.frightened(level);
+
                 if (!blinky.onSpawnPoint())
-                {
-                    blinky.setMode(3);
-                    blinky.setIsModeSwitch(true);
-                    blinky.resetModeClock();
-                    blinky.setModeTimer(7);
-                    blinky.setSpeed(GHOST_FRIGHT_SPEED);
-                }
+                    blinky.frightened(level);
+
                 if (!pinky.onSpawnPoint())
-                {
-                    pinky.setMode(3);
-                    pinky.setIsModeSwitch(true);
-                    pinky.resetModeClock();
-                    pinky.setModeTimer(7);
-                    pinky.setSpeed(GHOST_FRIGHT_SPEED);
-                }
+                    pinky.frightened(level);
+
                 if (!clyde.onSpawnPoint())
-                {
-                    clyde.setMode(3);
-                    clyde.setIsModeSwitch(true);
-                    clyde.resetModeClock();
-                    clyde.setModeTimer(7);
-                    clyde.setSpeed(GHOST_FRIGHT_SPEED);
-                }
+                    clyde.frightened(level);
             }
 
             /* CHECK IF CHARACTERS ARE ALIVE */

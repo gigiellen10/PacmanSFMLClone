@@ -152,14 +152,22 @@ void Pacman::animate(int frameCounter)
 {
 	if (mSpeed != 0.f && this->getPosition() != Vector2f(PAC_SPAWN_X, PAC_SPAWN_Y)) // if pacman is actively moving and not at the spawn point
 	{
-		if (frameCounter % 8 < 4) // alternate between open and closed mouth states
+		if (frameCounter % 2 < 1) // alternate between open and closed mouth states
 		{
-			this->setTextureRect(sf::IntRect(250, 0, 200, 200));
+			if (mIndex > 4) // so does not go outside bounds of array (size 5)
+				mIndex = 0;
+			else
+				++mIndex;
+		}
+
+		this->setTextureRect(animationStates[mIndex]);
+		
+		/*	this->setTextureRect(sf::IntRect(250, 0, 200, 200));
 		}
 		else
 		{
 			this->setTextureRect(sf::IntRect(460, 0, 180, 200));
-		}
+		}*/
 	}
 	
 }
