@@ -94,10 +94,7 @@ int main()
 
             // reset justDied variable for this frame if true
             if (pac.getJustDied())
-            {
                 pac.setJustDied(false);
-                cout << "reset just died" << endl;
-            }
          
             // update ghosts - if alive and pac isn't dead, move as normal; if dead, initiate death animation/sequence
             if (blinky.getIsAlive())
@@ -152,9 +149,8 @@ int main()
             isPeletEaten = map.updatePelets(pac.getGlobalBounds()); 
 
             if (isPeletEaten == 1) // pac ate a regular pelet, add 10 to score count
-            {
                 pac.setScore(pac.getScore() + 10);
-            }
+
             else if (isPeletEaten == 2)
             {
                 pac.setScore(pac.getScore() + 50); // power pelet is 50 pts
@@ -183,13 +179,20 @@ int main()
                 inky.setJustDied(true);
                 pac.setScore(pac.getScore() + 100); // update pac score, eating ghost = +100 pts
             }
-            else if (inky.getMode() != 3
+            else if (inky.getIsAlive() && inky.getMode() != 3 && gameStatus != lost
                 && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
                     blinky.getGlobalBounds(), clyde.getGlobalBounds() }))) 
             {
                 pac.setIsAlive(false);
                 pac.setSpeed(0.f); // execute death sequence/animation
                 pac.setJustDied(true);
+                pac.setRotation(0);
+
+                // stop ghosts in their tracks
+                inky.setSpeed(0.f);
+                pinky.setSpeed(0.f);
+                blinky.setSpeed(0.f);
+                clyde.setSpeed(0.f);
 
                 gameStatus = lost;
             }
@@ -201,13 +204,20 @@ int main()
                 pinky.setJustDied(true);
                 pac.setScore(pac.getScore() + 100);
             }
-            else if (pinky.getMode() != 3 
+            else if (pinky.getIsAlive() && pinky.getMode() != 3 && gameStatus != lost
                 && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
                     blinky.getGlobalBounds(), clyde.getGlobalBounds() }))) // check if pac collided with any ghosts) // if not frightened, pac can die
             {
                 pac.setIsAlive(false);
                 pac.setSpeed(0.f); // execute death sequence/animation
                 pac.setJustDied(true);
+                pac.setRotation(0);
+
+                // stop ghosts in their tracks
+                inky.setSpeed(0.f);
+                pinky.setSpeed(0.f);
+                blinky.setSpeed(0.f);
+                clyde.setSpeed(0.f);
 
                 gameStatus = lost;
             }
@@ -219,13 +229,20 @@ int main()
                 blinky.setJustDied(true);
                 pac.setScore(pac.getScore() + 100);
             }
-            else if (blinky.getMode() != 3 
+            else if (blinky.getIsAlive() && blinky.getMode() != 3 && gameStatus != lost
                 && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
                     blinky.getGlobalBounds(), clyde.getGlobalBounds() }))) // check if pac collided with any ghosts) // if not frightened, pac can die
             {
                 pac.setIsAlive(false);
                 pac.setSpeed(0.f); // execute death sequence/animation
                 pac.setJustDied(true);
+                pac.setRotation(0);
+
+                // stop ghosts in their tracks
+                inky.setSpeed(0.f);
+                pinky.setSpeed(0.f);
+                blinky.setSpeed(0.f);
+                clyde.setSpeed(0.f);
 
                 gameStatus = lost;
             }
@@ -237,13 +254,20 @@ int main()
                 clyde.setJustDied(true);
                 pac.setScore(pac.getScore() + 100);
             }
-            else if (clyde.getMode() != 3 
+            else if (clyde.getIsAlive() && clyde.getMode() != 3 && gameStatus != lost
                 && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
-                    blinky.getGlobalBounds(), clyde.getGlobalBounds() }))) // check if pac collided with any ghosts) // if not frightened, pac can die
+                    blinky.getGlobalBounds(), clyde.getGlobalBounds() }))) 
             {
                 pac.setIsAlive(false);
                 pac.setSpeed(0.f); // execute death sequence/animation
                 pac.setJustDied(true);
+                pac.setRotation(0);
+
+                // stop ghosts in their tracks
+                inky.setSpeed(0.f);
+                pinky.setSpeed(0.f);
+                blinky.setSpeed(0.f);
+                clyde.setSpeed(0.f);
 
                 gameStatus = lost;
             }
@@ -252,11 +276,11 @@ int main()
             // if ghost alive, adjust ghost mode and reset speed if mode timer ran out
             // if ghost dead, initiate respawn sequence/animation
 
-            if (inky.getIsAlive())
+            if (inky.getIsAlive() && gameStatus != lost)
             {
-                inky.checkModeTimer(level, Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())));
+                inky.checkModeTimer(level, Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), map);
             }
-            else // inky dead
+            else if (!inky.getIsAlive())
             {
                 // increase speed
                 inky.setSpeed(400.f);
@@ -265,11 +289,11 @@ int main()
                 inky.setMode(1);
             }
 
-            if (pinky.getIsAlive())
+            if (pinky.getIsAlive() && gameStatus != lost)
             {
-                pinky.checkModeTimer(level, Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())));
+                pinky.checkModeTimer(level, Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), map);
             }
-            else // pinky dead
+            else if (!pinky.getIsAlive())
             {
                 // increase speed
                 pinky.setSpeed(400.f);
@@ -278,24 +302,24 @@ int main()
                 pinky.setMode(1);
             }
           
-            if (blinky.getIsAlive())
+            if (blinky.getIsAlive() && gameStatus != lost)
             {
-                blinky.checkModeTimer(level, Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())));
+                blinky.checkModeTimer(level, Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), map);
             }
-            else // blinky dead
+            else if (!blinky.getIsAlive()) 
             {
                 // increase speed
                 blinky.setSpeed(400.f);
 
                 // set mode back to default mode - chase
-                blinky.setMode(1);
+               blinky.setMode(1);
             }
 
-            if (clyde.getIsAlive())
+            if (clyde.getIsAlive() && gameStatus != lost)
             {
-                clyde.checkModeTimer(level, Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())));
+                clyde.checkModeTimer(level, Vector2i(getColIndex(pac.getPosition()), getRowIndex(pac.getPosition())), map);
             }
-            else // clyde dead
+            else if (!clyde.getIsAlive()) // clyde dead
             {
                 // increase speed
                 clyde.setSpeed(400.f);
@@ -312,18 +336,6 @@ int main()
             inky.animate(frameCounter, map);
             clyde.animate(frameCounter, map);
 
-
-            /* CHECK IF GAME WON OR LOST */
-            if (gameStatus == lost) // if pac died within last frame
-            {
-                // stop ghosts in their tracks
-                inky.setSpeed(0.f);
-                pinky.setSpeed(0.f);
-                blinky.setSpeed(0.f);
-                clyde.setSpeed(0.f);
-            }
-
-            // check won here
 
             /* CLEAR WINDOW AND DRAW NEW GAMESTATE */
             window.clear();
@@ -343,9 +355,19 @@ int main()
 
             ++frameCounter; // increment # frames 
 
-            // check if won or lost here and display end screen; get input if want to play again
+            /* CHECK IF GAME WON OR LOST */
+            if (gameStatus == won)
+            {
+                displayWonScreen(pac.getScore(), window);
+            }
+            else if (gameStatus == lost)
+            {
+                displayLostScreen(window);
+            }
             
-
         }
+
+
+
     return 0;
 }

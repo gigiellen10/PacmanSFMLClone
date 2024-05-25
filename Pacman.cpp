@@ -165,15 +165,17 @@ void Pacman::animate(int frameCounter)
 			if (mJustDied) // if died within last frame
 			{
 				mIndex = 0; // start as whole circle
-				setRotation(0); // set rotation back to 0 deg
 			}
 			else if (mIndex < 5) // valid range for animation is between indexes 5-16
+			{
+				std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 3 seconds then execute death animation
 				mIndex = 5;
+			}
 			else if (mIndex < 16)
 				++mIndex;
 			else
 			{
-				std::this_thread::sleep_for(std::chrono::seconds(3)); // sleep for 3 seconds then display loosing screen
+				std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 2 seconds then display loosing screen
 			}
 			
 		}

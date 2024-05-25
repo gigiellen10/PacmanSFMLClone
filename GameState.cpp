@@ -32,4 +32,31 @@ double length(const Vector2i& vector1, const Vector2i& vector2)
 	return sqrt(pow(vector1.x - vector2.x, 2) + pow(vector2.y - vector1.y, 2));
 }
 
+// purpose: displays a winning message screen with player's score; prompts if player wants to play again
+bool displayWonScreen(int score, RenderWindow& window)
+{
+	bool userDecision = false; 
+
+	while (window.isOpen())
+	{
+		window.clear();
+
+		// draw
+
+		window.display();
+	}
+}
+
+// purpose: displays a loosing message screen; prompts if player wants to play again
+bool displayLostScreen(RenderWindow& window)
+{
+	while (window.isOpen())
+	{
+		window.clear();
+
+		// draw
+
+		window.display();
+	}
+}
 

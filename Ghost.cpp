@@ -307,7 +307,7 @@ vector<Vector2i> Ghost::findValidDirs(GameMap& theMap)
 	return validDirs;
 }
 
-void Ghost::checkModeTimer(int level, const Vector2i& pacPos)
+void Ghost::checkModeTimer(int level, const Vector2i& pacPos, GameMap& theMap)
 {
 	// if in frightened mode 
 	if (mMode == 3
@@ -316,7 +316,7 @@ void Ghost::checkModeTimer(int level, const Vector2i& pacPos)
 		mMode = 1; // set mode back to chase mode
 		mIsSwitchingModes = true;
 
-		mSpeed = GHOST_CHASE_SPEED;
+		mSpeed = GHOST_FRIGHT_SPEED;
 
 		mModeClock.restart(); // restart the clock each time mode switched
 
@@ -332,10 +332,15 @@ void Ghost::checkModeTimer(int level, const Vector2i& pacPos)
 
 	}
 	else if (mMode == 1 // if in chase mode and clyde is within 8 cells of pac or the mode clock has run out
-		&& ((mAIType == 4 && this->closeToPac(pacPos, 8)) || mModeClock.getElapsedTime().asSeconds() >= mModeTimer))
+		&& ((mAIType == 4 && !inPrisonBox(theMap) && this->closeToPac(pacPos, 8)) || mModeClock.getElapsedTime().asSeconds() >= mModeTimer))
 	{
 		mMode = 2; // alternate to scatter mode
 		mIsSwitchingModes = true;
+
+		if (mAIType == 4 && this->closeToPac(pacPos, 8))
+		{
+			cout << "close to pac and switching modes from chase to scatter" << endl;
+		}
 
 		mSpeed = GHOST_CHASE_SPEED;
 
@@ -482,14 +487,18 @@ bool Ghost::closeToPac(const Vector2i& pacPos, int buffer)
 {
 	Vector2i ghostPos(getColIndex(getPosition()), getRowIndex(getPosition()));
 
-	if (mDirection == Direction::DOWN)
-		return (ghostPos.y + (mDirection.y * buffer)) >= pacPos.y;
-	else if (mDirection == Direction::UP)
-		return (ghostPos.y + (mDirection.y * buffer)) <= pacPos.y;
-	else if (mDirection == Direction::RIGHT)
-		return (ghostPos.x + (mDirection.x * buffer)) >= pacPos.x;
-	else
-		return (ghostPos.x + (mDirection.x * buffer)) <= pacPos.x;
+	if ((mDirection == Direction::UP || mDirection == Direction::DOWN) &&
+		ghostPos.x == pacPos.x)
+	{
+		return abs(ghostPos.y - pacPos.y) >= buffer; // if difference in y coords (vertical) is >= buffer of tiles
+	}
+	else if ((mDirection == Direction::LEFT || mDirection == Direction::RIGHT) &&
+		ghostPos.y == pacPos.y)
+	{
+		return abs(ghostPos.x - pacPos.x) >= buffer; // if difference in x coords (lateral) is >= buffer of tiles
+	}
+	else 
+		return false;
 }
 
 // purpose: adjusts ghost settings to properly initiate frightened mode

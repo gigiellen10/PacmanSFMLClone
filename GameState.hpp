@@ -81,3 +81,5 @@ namespace Direction
 void scoreToScreen(RenderWindow& window, Font &font, int currScore);
 Vector2f operator /(const Vector2f& lhs, double rhs);
 double length(const Vector2i& vector1, const Vector2i& vector2);
+bool displayWonScreen(int score, RenderWindow& window);
+bool displayLostScreen(RenderWindow& window);
