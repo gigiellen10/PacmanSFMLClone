@@ -120,10 +120,16 @@ bool Character::isDeath(const vector<FloatRect>& enemyPositions)
 {
 	bool isDead = false;
 
+	// get precise rectangle
+	FloatRect bounds(this->getGlobalBounds().left + 15.f, this->getGlobalBounds().top + 10.f, 
+		this->getGlobalBounds().width - 15.f, this->getGlobalBounds().height - 10.f);
+	
 	// check each enemy position, if intersects w/ character -> return true
 	for (auto i : enemyPositions)
 	{
-		if (this->getGlobalBounds().intersects(i))
+		if (i.contains(Vector2f(bounds.left, bounds.top)) 
+			|| i.contains(Vector2f(bounds.left + bounds.width, bounds.top)) || i.contains(Vector2f(bounds.left, bounds.top + bounds.height))
+			|| i.contains(Vector2f(bounds.left + bounds.width, bounds.top + bounds.height)) )
 		{
 			isDead = true;
 		}
