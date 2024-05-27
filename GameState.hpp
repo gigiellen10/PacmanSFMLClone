@@ -12,7 +12,7 @@ File purpose: include #define constants and common SFML libraries needed through
 #define MAP_WIDTH_PIXELS 1980 // = 22 game tiles
 #define MAP_HEIGHT_PIXELS 990 // = 11 game tiles
 
-#define MAP_WIDTH 23 // cols of game map array
+#define MAP_WIDTH 22 // cols of game map array
 #define MAP_HEIGHT 11 // rows of game map array
 
 #define COLLISION_RAY 60 // universal length of HORISONTAL ray for pacman map collisions

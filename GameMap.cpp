@@ -48,6 +48,7 @@ GameMap::GameMap(int mapOutline[MAP_HEIGHT][MAP_WIDTH])
 				mPeletList.push_back(Pelet((float)(CELL_SIZE * j) + (CELL_SIZE / 2), 
 					(float)(CELL_SIZE * i) + (CELL_SIZE / 2), peletSize, isPower)); // add pelet to vector 
 				++mNumPelets; // increment number of pelets
+
 			}
 
 			if (mTileArr[i][j].getIsPassable() == 1) // set wall color to blue
@@ -108,6 +109,7 @@ int GameMap::updatePelets(const FloatRect &pacGlobBounds)
 
 			i->setIsEaten(true); 
 			i->setFillColor(Color::Black); // set to color of gameboard so not visible
+
 			--mNumPelets; // 1 less pelet on board
 		}
 	}

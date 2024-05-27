@@ -13,10 +13,6 @@ int main()
     RenderWindow window(VideoMode(MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS), "Genevieve's Pacman Clone!!");
     window.setFramerateLimit(60); // normalize the framerate to 60 fps
 
-    bool pacDeath = false, // if pac dies
-        justDied = false, 
-        playOrExit = true; // determines if player wants to play game or exit main menu initially 
-
     // game is initally in progress
     enum GameState {exit, inProgress, won, lost};
     GameState gameStatus = inProgress; 
@@ -24,6 +20,8 @@ int main()
         int frameCounter = 0, // incremented at every iteration of game loop (each frame) - used for animation
             isPeletEaten = 0, // if pac eats a pelet
             level = 1; // curr level user is on
+
+        bool pacAnimationDone = false;
 
         Texture mouthStates,
         ghostStates, 
@@ -192,7 +190,7 @@ int main()
                 && pac.isDeath(vector<FloatRect>({ inky.getGlobalBounds(), pinky.getGlobalBounds(),
                     blinky.getGlobalBounds(), clyde.getGlobalBounds() }))) 
             {
-                pac.setIsAlive(false);
+               pac.setIsAlive(false);
                 pac.setSpeed(0.f); // execute death sequence/animation
                 pac.setJustDied(true);
                 pac.setRotation(0);
@@ -282,8 +280,8 @@ int main()
             }
 
             
-            // if ghost alive, adjust ghost mode and reset speed if mode timer ran out
-            // if ghost dead, initiate respawn sequence/animation
+             // if ghost alive, adjust ghost mode and reset speed if mode timer ran out
+             // if ghost dead, initiate respawn sequence/animation
 
             if (inky.getIsAlive() && gameStatus != lost)
             {
@@ -336,9 +334,13 @@ int main()
                 // set mode back to default mode - chase
                 clyde.setMode(1);
             }
+           
+            // is pac ate all the pelets, won the game!
+            if (map.getNumPelets() == 0)
+                gameStatus = won;
 
             /* ANIMATE CHARACTERS */
-            pac.animate(frameCounter);
+            pacAnimationDone = pac.animate(frameCounter);
 
             blinky.animate(frameCounter, map);
             pinky.animate(frameCounter, map);
@@ -365,11 +367,15 @@ int main()
             ++frameCounter; // increment # frames 
 
             /* CHECK IF GAME WON OR LOST */
-            if (gameStatus == won)
+            if (gameStatus == won) // if player won
             {
+                // pause briefly before displaying won screen
+                std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 3 seconds then execute death animation
+
                 gameStatus = static_cast<GameState>(displayWonScreen(pac.getScore(), window, scoreFont));
             }
-            else if (gameStatus == lost)
+            else if (gameStatus == lost && // if game lost and pac death sequence finished
+                pacAnimationDone)
             {
                 gameStatus = static_cast<GameState>(displayLostScreen(window, scoreFont));
             }

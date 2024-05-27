@@ -148,8 +148,11 @@ bool Pacman::isValidDirection(bool onIntersection, const Vector2i desiredDirecti
 
 
 // purpose: alternates between 2 mouth states based on how many frames elapsed; adjusts texture to display accordingly
-void Pacman::animate(int frameCounter)
+// returns true if pacman has died and the full death animation has elapsed, false otherwise
+bool Pacman::animate(int frameCounter)
 {
+	bool finishedAnimation = false;
+
 	// if pacman is actively moving and not at the spawn point; or not alive
 	if ((mSpeed != 0.f && this->getPosition() != Vector2f(PAC_SPAWN_X, PAC_SPAWN_Y)) || !mIsAlive) 
 	{
@@ -175,13 +178,16 @@ void Pacman::animate(int frameCounter)
 				++mIndex;
 			else
 			{
-				std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 2 seconds then display loosing screen
+				finishedAnimation = true;
+				//std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 2 seconds then display loosing screen
 			}
 			
 		}
 
 		this->setTextureRect(animationStates[mIndex]);
 	}
+
+	return finishedAnimation;
 	
 }
 
