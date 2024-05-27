@@ -192,6 +192,7 @@ void Pacman::changeDirection(Vector2i& currDir, const Vector2i& newDir)
 	// if changing direction
 	if (currDir != newDir)
 	{
+
 		// 180 degree turn
 		if (currDir == -newDir || (currDir == Direction::STOP && newDir == Direction::LEFT))
 		{

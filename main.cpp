@@ -14,26 +14,35 @@ int main()
     window.setFramerateLimit(60); // normalize the framerate to 60 fps
 
     bool pacDeath = false, // if pac dies
-        justDied = false;
+        justDied = false, 
+        playOrExit = true; // determines if player wants to play game or exit main menu initially 
 
     // game is initally in progress
-    enum GameState {inProgress, won, lost};
+    enum GameState {exit, inProgress, won, lost};
     GameState gameStatus = inProgress; 
 
         int frameCounter = 0, // incremented at every iteration of game loop (each frame) - used for animation
             isPeletEaten = 0, // if pac eats a pelet
             level = 1; // curr level user is on
 
-        Texture mouthStates, 
-        ghostStates; 
+        Texture mouthStates,
+        ghostStates, 
+            retroLogo; // logo for start screen
        
-        // load pacman and ghost states from file for animation
+        // pre-load pacman, ghost and menu textures from files for animation
         mouthStates.loadFromFile("assets\\pacAnimationStates.png"); 
         ghostStates.loadFromFile("assets\\GhostStates.png");
+        retroLogo.loadFromFile("assets\\pacmanHeader.png");
 
         Font scoreFont; // font for displaying score in top left corner
         scoreFont.loadFromFile("assets\\emulogic-font\\Emulogic-zrEw.ttf");
         
+
+        /* DISPLAY PACMAN MENU BEFORE ENTERING MAIN LOOP */
+        gameStatus = static_cast<GameState>(displayStartScreen(window, &retroLogo, scoreFont));
+
+        /* INIT MAIN GAME VARS */
+
         // ghost prison gate
         RectangleShape gate(Vector2f(180.f, 15.f));
 
@@ -71,7 +80,7 @@ int main()
 
         /* LOOP THAT RUNS MAIN GAME */
 
-        while (window.isOpen())
+        while (window.isOpen() && gameStatus != exit)
         {
 
             Event event;
@@ -358,16 +367,15 @@ int main()
             /* CHECK IF GAME WON OR LOST */
             if (gameStatus == won)
             {
-                displayWonScreen(pac.getScore(), window);
+                gameStatus = static_cast<GameState>(displayWonScreen(pac.getScore(), window, scoreFont));
             }
             else if (gameStatus == lost)
             {
-                displayLostScreen(window);
+                gameStatus = static_cast<GameState>(displayLostScreen(window, scoreFont));
             }
-            
+
         }
 
-
-
+       
     return 0;
 }
