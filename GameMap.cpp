@@ -12,6 +12,9 @@ GameMap::GameMap(int mapOutline[MAP_HEIGHT][MAP_WIDTH])
 	float peletSize = 7.f;
 	bool isPower = false;
 
+	mGate = RectangleShape((Vector2f(180.f, 15.f))); // init gate size
+	mGate.setPosition(900, 360); // set gate position
+
 	mNumPelets = 0; // initialize # pelets on map
 
 	for (int i = 0; i < MAP_HEIGHT; ++i) // controlls rows
@@ -80,6 +83,9 @@ void GameMap::displayMap(sf::RenderWindow &displayWindow, Font &font, int currSc
 	{
 		displayWindow.draw(*i);
 	}
+
+	// display gate
+	displayWindow.draw(mGate);
 
 	// display score 
 	scoreToScreen(displayWindow, font, currScore);

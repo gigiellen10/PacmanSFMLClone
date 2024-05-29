@@ -9,7 +9,8 @@ File purpose: contains the function definitions for the ghost class */
 class Ghost : public Character
 {
 public:
-	// empty constructor for now, add animation rectangle
+	
+	// constructor
 	Ghost(const Texture* ghostTexture, float spawnX, float spawnY, int AI)
 		: Character(ghostTexture, spawnX, spawnY) {
 		
@@ -48,6 +49,8 @@ public:
 	// necessary setters and getters
 	void setMode(int newMode) { mMode = newMode; }
 	int getMode() const { return mMode; }
+
+	void setAIType(int AI) { mAIType = AI; }
 
 	void setModeTimer(int timeInMode) { mModeTimer = timeInMode; }
 

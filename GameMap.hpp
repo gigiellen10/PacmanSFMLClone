@@ -38,5 +38,6 @@ private:
 	GameTile mTileArr[MAP_HEIGHT][MAP_WIDTH]; // array to create paths, walls etc.
 	vector<Pelet> mPeletList; // list of pelets contained on the map
 	int mNumPelets; // number of pelets still on map (when = 0, pacman won game)
+	RectangleShape mGate; // ghost prison gate
 
 };
