@@ -25,7 +25,7 @@ public:
 
 	// main game methods
 	void runGame(int* gameWonOrLoss);
-	void reset();
+	void reset(int gameStatus);
 	int displayStartScreen();
 	int displayLostScreen();
 	int displayWonScreen();

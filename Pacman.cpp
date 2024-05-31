@@ -171,7 +171,7 @@ bool Pacman::animate(int frameCounter)
 			}
 			else if (mIndex < 5) // valid range for animation is between indexes 5-16
 			{
-				std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 3 seconds then execute death animation
+				std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 1 second then execute death animation
 				mIndex = 5;
 			}
 			else if (mIndex < 16)
@@ -179,7 +179,7 @@ bool Pacman::animate(int frameCounter)
 			else
 			{
 				finishedAnimation = true;
-				//std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 2 seconds then display loosing screen
+				std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 1 second then display loosing screen
 			}
 			
 		}

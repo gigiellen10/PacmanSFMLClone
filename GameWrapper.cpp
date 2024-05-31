@@ -79,7 +79,7 @@ GameWrapper::~GameWrapper()
 }
 
 // purpose: resets the state of the game per each level or if player chooses play again after loosing
-void GameWrapper::reset()
+void GameWrapper::reset(int gameStatus)
 {
     int AI = 1,
         ghostXCoord = 855;
@@ -118,7 +118,12 @@ void GameWrapper::reset()
 
     mMap = new GameMap(mapOutline);
 
-    // may need to reset frame counter?
+    if (gameStatus == 4) // play again so reset score and level, also
+    {
+        mLevel = 1;
+        mScore = 0;
+    }
+    
 }
 
 void GameWrapper::runGame(int* gameWonOrLoss)
@@ -163,10 +168,11 @@ void GameWrapper::runGame(int* gameWonOrLoss)
         if (mPac->getIsAlive()) // move if he's alive
             mPac->movement(deltaTime, *mMap);
 
+        cout << "just died before reset: " << mPac->getJustDied() << endl;
         // reset justDied variable for this frame if true
         if (mPac->getJustDied())
             mPac->setJustDied(false);
-
+        cout << "just died after reset: " << mPac->getJustDied() << endl;
         // update ghosts - if alive and pac isn't dead, move as normal; if dead, initiate death animation/sequence
         for (auto i : mGhosts)
         {
@@ -209,6 +215,8 @@ void GameWrapper::runGame(int* gameWonOrLoss)
         }
 
         /* CHECK IF CHARACTERS ARE ALIVE */
+
+        cout << "just died before for loop: " << mPac->getJustDied() << endl;
        
         for (auto i : mGhosts)
         {
@@ -220,7 +228,7 @@ void GameWrapper::runGame(int* gameWonOrLoss)
                 i->setJustDied(true);
                 mScore += 100; // update pac score, eating ghost = +100 pts
             }
-            else if (i->getIsAlive() && i->getMode() != 3
+            else if (i->getIsAlive() && mPac->getIsAlive() && i->getMode() != 3
                 && mPac->isDeath(vector<FloatRect>(ghostPositions)))
             {
                 mPac->setIsAlive(false);
@@ -239,6 +247,8 @@ void GameWrapper::runGame(int* gameWonOrLoss)
             }
 
         }
+
+        cout << "just died after for loop: " << mPac->getJustDied() << endl;
 
 
 
@@ -280,8 +290,11 @@ void GameWrapper::runGame(int* gameWonOrLoss)
         /* ANIMATE CHARACTERS */
         pacAnimationDone = mPac->animate(mFrameCounter);
 
+        cout << "pac index:" << mPac->getIndex() << endl;
+
         if (pacAnimationDone)
             playing = false; // pac death sequence completed, break out of gameloop
+
         for (auto i : mGhosts)
         {
             
@@ -308,7 +321,7 @@ void GameWrapper::runGame(int* gameWonOrLoss)
         ++mFrameCounter; // increment # frames 
     }
 
-    std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 3 seconds before displaying won/loss screen
+    //std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 3 seconds before displaying won/loss screen
 }
 
 // purpose: displays the pacman start screen with retro look; allows player to start or exit
@@ -452,7 +465,7 @@ int GameWrapper::displayWonScreen()
             && arrow.getPosition().y == 565)
         {
             arrow.setFillColor(Color::Yellow);
-            userDecision = play;
+            userDecision = static_cast<DecisionType>(4); // aka playAgain in main()
         }
         else if (Keyboard::isKeyPressed(Keyboard::Enter) // if enter was pressed and selected exit
             && arrow.getPosition().y == 655)
@@ -543,7 +556,7 @@ int GameWrapper::displayLostScreen()
         {
             gameOverMsg.setFillColor(Color::Red);
             arrow.setFillColor(Color::Red);
-            userDecision = play;
+            userDecision = static_cast<DecisionType>(4); // aka playAgain in main()
         }
         else if (Keyboard::isKeyPressed(Keyboard::Enter) // if enter was pressed and selected exit
             && arrow.getPosition().y == 655)

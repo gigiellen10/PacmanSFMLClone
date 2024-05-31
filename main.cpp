@@ -12,7 +12,7 @@ int main()
 {
     
     // controlls whether user wants to play again or exit program
-    enum GameState { exit, inProgress, won, lost}; // 0 = exit, 1 = inProgress, 2 = won, 3 = lost
+    enum GameState { exit, inProgress, won, lost, playAgain}; // 0 = exit, 1 = inProgress, 2 = won, 3 = lost, 4 = playAgain
     GameState gameStatus = inProgress; 
 
     int status = 1; // equivalent to enum inProgress
@@ -24,17 +24,18 @@ int main()
     gameStatus = static_cast<GameState>(theGame.displayStartScreen()); 
 
 
-    while (gameStatus == inProgress)
+    while (gameStatus == inProgress || gameStatus == playAgain)
     {
         // if mLevel != 1 || gameStatus == lost, reset game state - de allocate and reallocate Pac, Ghosts, GameMap
         // AND if gameStatus != lost, increase mLevel++
-        if (theGame.getLevel() != 1 || gameStatus == lost)
+        if (theGame.getLevel() != 1 || gameStatus == lost || gameStatus == playAgain)
         {
             // reset the state of the game
-            theGame.reset();
+            theGame.reset(gameStatus);
             gameStatus = inProgress;
 
-            if (gameStatus != lost)
+            // if player won level so advancing in level #
+            if (gameStatus != lost && gameStatus != playAgain)
                 theGame.setLevel(theGame.getLevel() + 1); // increment current level
         }
 
