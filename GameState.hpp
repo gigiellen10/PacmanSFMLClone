@@ -23,10 +23,10 @@ File purpose: include #define constants and common SFML libraries needed through
 #define PAC_SPAWN_Y 855
 
 // ghost spawn coordinates in pixels
-#define GHOST_SPAWN_X_O 855 // orange
-#define GHOST_SPAWN_X_R 945 // red
-#define GHOST_SPAWN_X_P 1035 // pink
-#define GHOST_SPAWN_X_B 1125 // blue
+#define GHOST_SPAWN_X_B 855 // orange
+#define GHOST_SPAWN_X_P 945 // red
+#define GHOST_SPAWN_X_R 1035 // pink
+#define GHOST_SPAWN_X_O 1125 // blue
 
 #define GHOST_SPAWN_Y 495 
 
@@ -81,6 +81,6 @@ namespace Direction
 void scoreToScreen(RenderWindow& window, Font &font, int currScore);
 Vector2f operator /(const Vector2f& lhs, double rhs);
 double length(const Vector2i& vector1, const Vector2i& vector2);
-int displayWonScreen(int score, RenderWindow& window, Font& font);
-int displayLostScreen(RenderWindow& window, Font& font);
-int displayStartScreen(RenderWindow& window, Texture* titleTexture, Font& pacFont);
+//int displayWonScreen(int score, RenderWindow& window, Font& font);
+//int displayLostScreen(RenderWindow& window, Font& font);
+//int displayStartScreen(RenderWindow& window, Texture* titleTexture, Font& pacFont);

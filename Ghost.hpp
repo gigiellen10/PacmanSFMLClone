@@ -9,6 +9,13 @@ File purpose: contains the function definitions for the ghost class */
 class Ghost : public Character
 {
 public:
+
+	~Ghost() {
+		if (mSpeed == 200)
+		{
+			cout << "speed is 200" << endl;
+		}
+	}
 	
 	// constructor
 	Ghost(const Texture* ghostTexture, float spawnX, float spawnY, int AI)

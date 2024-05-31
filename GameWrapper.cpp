@@ -24,13 +24,14 @@ GameWrapper::GameWrapper()
     mPacmanAnimation->loadFromFile("assets\\pacAnimationStates.png");
     mGhostAnimation->loadFromFile("assets\\GhostStates.png");
     mLogoHeader->loadFromFile("assets\\pacmanHeader.png");
+    mFont->loadFromFile("assets\\emulogic-font\\Emulogic-zrEw.ttf");
 
     mPac = new Pacman(mPacmanAnimation);
     
     // init 4 ghosts
     for (int i = 0; i < 4; ++i, ++AI)
     {
-        mGhosts.push_back(Ghost(mGhostAnimation, ghostXCoord, (float)GHOST_SPAWN_Y, AI));
+        mGhosts[i] = new Ghost(mGhostAnimation, (float)ghostXCoord, (float)GHOST_SPAWN_Y, AI);
 
         ghostXCoord += 90; // increment by 90 pix so ghosts spaced correctly
     }
@@ -61,7 +62,7 @@ GameWrapper::GameWrapper()
 
 GameWrapper::~GameWrapper()
 {
-    // use free to deallocate all vars
+    // deallocate all vars
     delete mWindow;
     delete mPacmanAnimation;
     delete mGhostAnimation;
@@ -69,6 +70,11 @@ GameWrapper::~GameWrapper()
     delete mFont;
     delete mPac;
     delete mMap;
+
+    for (int i = 4; i < 4; ++i)
+    {
+        delete mGhosts[i];
+    }
 
 }
 
@@ -81,12 +87,14 @@ void GameWrapper::reset()
     // reset by deleting and re allocating pacman, the map, and the ghosts
     delete mPac;
     delete mMap;
-    mGhosts.clear();
 
     // refill ghost vector
     for (int i = 0; i < 4; ++i, ++AI)
     {
-        mGhosts.push_back(Ghost(mGhostAnimation, ghostXCoord, (float)GHOST_SPAWN_Y, AI));
+        // delete and init new ghost to reset all attributes
+        delete mGhosts[i];
+
+        mGhosts[i] = new Ghost(mGhostAnimation, (float)ghostXCoord, (float)GHOST_SPAWN_Y, AI);
 
         ghostXCoord += 90; // increment by 90 pix so ghosts spaced correctly
     }
@@ -113,7 +121,7 @@ void GameWrapper::reset()
     // may need to reset frame counter?
 }
 
-int GameWrapper::runGame(int* gameWonOrLoss)
+void GameWrapper::runGame(int* gameWonOrLoss)
 {
     int typePeletEaten = 0; // if pac eats a pelet
         
@@ -132,6 +140,7 @@ int GameWrapper::runGame(int* gameWonOrLoss)
 
     while (mWindow->isOpen() && playing /*&& pacAnimationDone*/)
     {
+
         vector<FloatRect> ghostPositions; // used to check pacman death
 
         Event event;
@@ -139,7 +148,10 @@ int GameWrapper::runGame(int* gameWonOrLoss)
         while (mWindow->pollEvent(event)) // if the game window was selected to be closed
         {
             if (event.type == Event::Closed)
+            {
+                *gameWonOrLoss = 0; // exit game loop
                 mWindow->close();
+            }
         }
 
         // calculate delta time (time since clock started)
@@ -158,54 +170,57 @@ int GameWrapper::runGame(int* gameWonOrLoss)
         // update ghosts - if alive and pac isn't dead, move as normal; if dead, initiate death animation/sequence
         for (auto i : mGhosts)
         {
-            if (i.getIsAlive())
+            
+            if (i->getIsAlive())
             {
-                i.update(deltaTime, prisonClock, *mMap,
+                i->update(deltaTime, prisonClock, *mMap,
                     Vector2i(getColIndex(mPac->getPosition()), getRowIndex(mPac->getPosition())), mPac->getDirection(),
                     Vector2i(getColIndex(getBlinkyPosition()), getRowIndex(getBlinkyPosition())));
             }
             else
             {
-                i.dead(deltaTime, *mMap);
-                i.setJustDied(false);
+                i->dead(deltaTime, *mMap);
+                i->setJustDied(false);
             }
+
+            // get ghost global bounds
+            ghostPositions.push_back(i->getGlobalBounds());
         }
 
         // determine if pac collided with a pelet
-        typePeletEaten = mMap->updatePelets(mPac->getGlobalBounds());
+        typePeletEaten = mMap->updatePelets(mPac->getGlobalBounds(), mFrameCounter);
 
         if (typePeletEaten == 1) // pac ate a regular pelet, add 10 to score count
-            mPac->setScore(mPac->getScore() + 10);
+            mScore += 10;
+           
 
         else if (typePeletEaten == 2)
         {
-            mPac->setScore(mPac->getScore() + 50); // power pelet is 50 pts
+            mScore += 50; // power pelet is 50 pts
 
 
             // initiate frightened mode for ghosts if not on spawn point
             for (auto i : mGhosts)
             {
-                if (!i.onSpawnPoint())
-                    i.frightened(mLevel);
-
-                // get ghost global bounds
-                ghostPositions.push_back(i.getGlobalBounds());
+                if (!i->onSpawnPoint())
+                    i->frightened(mLevel);
             }
 
         }
 
         /* CHECK IF CHARACTERS ARE ALIVE */
-
+       
         for (auto i : mGhosts)
         {
-            if (i.getMode() == 3 && // if in frightened mode, check if ghost collided with pac
-                i.isDeath(vector<FloatRect>({ mPac->getGlobalBounds() })))
+            
+            if (i->getMode() == 3 && // if in frightened mode, check if ghost collided with pac
+                i->isDeath(vector<FloatRect>({ mPac->getGlobalBounds() })))
             {
-                i.setIsAlive(false);
-                i.setJustDied(true);
-                mPac->setScore(mPac->getScore() + 100); // update pac score, eating ghost = +100 pts
+                i->setIsAlive(false);
+                i->setJustDied(true);
+                mScore += 100; // update pac score, eating ghost = +100 pts
             }
-            else if (i.getIsAlive() && i.getMode() != 3 
+            else if (i->getIsAlive() && i->getMode() != 3
                 && mPac->isDeath(vector<FloatRect>(ghostPositions)))
             {
                 mPac->setIsAlive(false);
@@ -214,32 +229,38 @@ int GameWrapper::runGame(int* gameWonOrLoss)
                 mPac->setRotation(0);
 
                 // stop ghosts in their tracks
-                mGhosts[0].setSpeed(0.f);
-                mGhosts[1].setSpeed(0.f);
-                mGhosts[2].setSpeed(0.f);
-                mGhosts[3].setSpeed(0.f);
+                mGhosts[0]->setSpeed(0.f);
+                mGhosts[1]->setSpeed(0.f);
+                mGhosts[2]->setSpeed(0.f);
+                mGhosts[3]->setSpeed(0.f);
 
                 *gameWonOrLoss = 3; // return loss value outside of function
 
             }
+
         }
+
 
 
         // if ghost alive, adjust ghost mode and reset speed if mode timer ran out
         // if ghost dead, initiate respawn sequence/animation
         for (auto i : mGhosts)
         {
-            if (i.getIsAlive() && playing != false)
+            
+
+            if (i->getIsAlive() && playing != false)
             {
-                i.checkModeTimer(mLevel, Vector2i(getColIndex(mPac->getPosition()), getRowIndex(mPac->getPosition())), *mMap);
+               
+                i->checkModeTimer(mLevel, Vector2i(getColIndex(mPac->getPosition()), getRowIndex(mPac->getPosition())), *mMap);
+               
             }
-            else if (!i.getIsAlive())
+            else if (!i->getIsAlive())
             {
                 // increase speed
-                i.setSpeed(400.f);
+                i->setSpeed(400.f);
 
                 // set mode back to default mode - chase
-                i.setMode(1);
+                i->setMode(1);
             }
         }
 
@@ -261,24 +282,25 @@ int GameWrapper::runGame(int* gameWonOrLoss)
 
         if (pacAnimationDone)
             playing = false; // pac death sequence completed, break out of gameloop
-
         for (auto i : mGhosts)
         {
-            i.animate(mFrameCounter, *mMap);
+            
+            i->animate(mFrameCounter, *mMap);
+            
         }
 
         /* CLEAR WINDOW AND DRAW NEW GAMESTATE */
         mWindow->clear();
 
         // display map
-        mMap->displayMap(*mWindow, *mFont, mPac->getScore());
+        mMap->displayMap(*mWindow, *mFont, mScore);
 
         // draw characters
         mWindow->draw(*mPac);
 
         for (auto i : mGhosts)
         {
-            mWindow->draw(i);
+            mWindow->draw(*i);
         }
 
         mWindow->display();

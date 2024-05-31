@@ -30,8 +30,12 @@ int main()
         // AND if gameStatus != lost, increase mLevel++
         if (theGame.getLevel() != 1 || gameStatus == lost)
         {
+            // reset the state of the game
             theGame.reset();
             gameStatus = inProgress;
+
+            if (gameStatus != lost)
+                theGame.setLevel(theGame.getLevel() + 1); // increment current level
         }
 
         // run game until player looses 

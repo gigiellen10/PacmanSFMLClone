@@ -137,15 +137,15 @@ Vector2i Ghost::findTargetTile(const Vector2i& pacTile, const Vector2i& pacDir, 
 		}
 		else if (mAIType == 1) // 4 tiles in front of pacman, pinky
 		{
-			target = pacTile + (4 * pacDir); 
+			target = static_cast<Vector2i>(calcInkyTarget(pacTile, pacDir, blinkyPos));
 		}
 		else if (mAIType == 3 || mAIType == 4) // pac's tile, blinky and clyde
 		{
 			target = pacTile;
 		}
-		else // AI type = 2, vector through offset tile and through blinky, inky 
+		else // AI type = 2, pinky 
 		{
-			target = static_cast<Vector2i>(calcInkyTarget(pacTile, pacDir, blinkyPos));
+			target = pacTile + (4 * pacDir);
 		}
 	}
 	else if (mMode == 2) // mode = scatter, run to corners
@@ -262,9 +262,9 @@ bool Ghost::onSpawnPoint() const
 
 	// determine spawn cell coords based on ghost type (AI)
 	if (mAIType == 1) // blue 
-		spawnCell.x = (GHOST_SPAWN_X_B / CELL_SIZE) - 1;
+		spawnCell.x = (GHOST_SPAWN_X_B / CELL_SIZE);
 	else if (mAIType == 2) // pink
-		spawnCell.x = (GHOST_SPAWN_X_P / CELL_SIZE) + 1;
+		spawnCell.x = (GHOST_SPAWN_X_P / CELL_SIZE);
 	else if (mAIType == 3) // red 
 		spawnCell.x = GHOST_SPAWN_X_R / CELL_SIZE;
 	else // orange, Ai type = 4 
@@ -384,8 +384,10 @@ void Ghost::checkModeTimer(int level, const Vector2i& pacPos, GameMap& theMap)
 // purpose: animates ghost based on mode (frightened/not frightenened), alive state, and current direction of travel
 void Ghost::animate(int frameCounter, GameMap& theMap)
 {
+
 	if (onSpawnPoint()) // if ghost on spawn point
 	{
+		
 		// loop between bouncing up and down within the cell
 		if (frameCounter % 8 < 4) // upwards orientation
 		{

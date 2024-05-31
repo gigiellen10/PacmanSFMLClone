@@ -17,12 +17,14 @@ public:
 	// setters and getters used in main()
 	RenderWindow* getWindow() { return mWindow; }
 	int getScore() const { return mScore; }
+
 	int getLevel() const { return mLevel; }
-	const Vector2f getBlinkyPosition() const { return mGhosts[2].getPosition(); } // blinky ghost is at index 2 (AI type = 3)
-	/*int getFrameCounter() const { return mFrameCounter; }*/
+	void setLevel(int newLevel) { mLevel = newLevel; }
+
+	const Vector2f getBlinkyPosition() const { return mGhosts[2]->getPosition(); } // blinky ghost is at index 2 (AI type = 3)
 
 	// main game methods
-	int runGame(int* gameWonOrLoss);
+	void runGame(int* gameWonOrLoss);
 	void reset();
 	int displayStartScreen();
 	int displayLostScreen();
@@ -34,7 +36,7 @@ private:
 	// allocated on heap
 	RenderWindow* mWindow; 
 	Pacman* mPac;
-	vector<Ghost> mGhosts;
+	Ghost* mGhosts[4];
 	GameMap* mMap;
 	Texture* mPacmanAnimation;
 	Texture* mGhostAnimation;

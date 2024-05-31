@@ -29,15 +29,11 @@ public:
 
 		this->setTextureRect(animationStates[0]); // original state has no open mouth (1st state on sprite file)
 
-		mScore = 0; // no points yet
 		mIndex = 0;
 	}
 	
 	// setters and getters
-
-	int getScore() const { return mScore; }
-	void setScore(int newScore) { mScore = newScore; }
-
+	
 	int getIndex() const { return mIndex; }
 
 	/* movement and wall collision checking */
@@ -51,7 +47,7 @@ public:
 	void changeDirection(Vector2i& currDir, const Vector2i& newDir); // checks current and new direction and rotates accordingly
 
 private:
-	int mScore; // pacman's current score (each pellet = 10 pts)
+	
 	int mIndex; // animation states index in array
 	IntRect animationStates[17]; // texture rects with regular mouth animation, including death sequence
 };

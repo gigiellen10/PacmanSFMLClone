@@ -99,7 +99,7 @@ GameTile* GameMap::operator [](int index)
 
 // edits the color of pelets displayed and decreases pelets that exist on gameboard
 // returns 0 if not eaten, 1 if regular pelet eaten, 2 if power pel eaten
-int GameMap::updatePelets(const FloatRect &pacGlobBounds)
+int GameMap::updatePelets(const FloatRect &pacGlobBounds, int frameCounter)
 {
 	int peletEatenType = 0; // initially pelet not eaten
 
@@ -118,6 +118,13 @@ int GameMap::updatePelets(const FloatRect &pacGlobBounds)
 
 			--mNumPelets; // 1 less pelet on board
 		}
+
+		// power pelet blinking animation
+		if (!i->getIsEaten() && i->IsPower() && frameCounter % 8 < 4)
+			i->setFillColor(Color::White);
+
+		else if (!i->getIsEaten() && i->IsPower())
+			i->setFillColor(Color::Black);
 	}
 
 	return peletEatenType;

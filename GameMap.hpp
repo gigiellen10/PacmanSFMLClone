@@ -27,7 +27,7 @@ public:
 	void displayMap(RenderWindow& displayWindow, Font& font, int currScore);
 
 	// adjusting which pelets displayed on screen if pac eats them; returns true if a pelet was eaten
-	int updatePelets(const FloatRect& pacGlobBounds);
+	int updatePelets(const FloatRect& pacGlobBounds, int frameCounter);
 
 	// overloaded []
 	GameTile* operator [](int index);
