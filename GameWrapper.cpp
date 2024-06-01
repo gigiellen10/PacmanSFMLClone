@@ -168,11 +168,11 @@ void GameWrapper::runGame(int* gameWonOrLoss)
         if (mPac->getIsAlive()) // move if he's alive
             mPac->movement(deltaTime, *mMap);
 
-        cout << "just died before reset: " << mPac->getJustDied() << endl;
+      
         // reset justDied variable for this frame if true
         if (mPac->getJustDied())
             mPac->setJustDied(false);
-        cout << "just died after reset: " << mPac->getJustDied() << endl;
+        
         // update ghosts - if alive and pac isn't dead, move as normal; if dead, initiate death animation/sequence
         for (auto i : mGhosts)
         {
@@ -215,8 +215,6 @@ void GameWrapper::runGame(int* gameWonOrLoss)
         }
 
         /* CHECK IF CHARACTERS ARE ALIVE */
-
-        cout << "just died before for loop: " << mPac->getJustDied() << endl;
        
         for (auto i : mGhosts)
         {
@@ -248,17 +246,14 @@ void GameWrapper::runGame(int* gameWonOrLoss)
 
         }
 
-        cout << "just died after for loop: " << mPac->getJustDied() << endl;
-
-
-
+       
         // if ghost alive, adjust ghost mode and reset speed if mode timer ran out
         // if ghost dead, initiate respawn sequence/animation
         for (auto i : mGhosts)
         {
             
 
-            if (i->getIsAlive() && playing != false)
+            if (i->getIsAlive() && mPac->getIsAlive() && playing != false)
             {
                
                 i->checkModeTimer(mLevel, Vector2i(getColIndex(mPac->getPosition()), getRowIndex(mPac->getPosition())), *mMap);
@@ -289,8 +284,6 @@ void GameWrapper::runGame(int* gameWonOrLoss)
 
         /* ANIMATE CHARACTERS */
         pacAnimationDone = mPac->animate(mFrameCounter);
-
-        cout << "pac index:" << mPac->getIndex() << endl;
 
         if (pacAnimationDone)
             playing = false; // pac death sequence completed, break out of gameloop
