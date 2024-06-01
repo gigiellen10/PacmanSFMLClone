@@ -42,7 +42,18 @@ private:
 	Texture* mGhostAnimation;
 	Texture* mLogoHeader;
 	Font* mFont;
-	Music* mMusic;
+
+	// audio sound and buffers
+	Sound* mTempSound; // overwritten for sounds on the fly
+
+	SoundBuffer* mIntroMusic;
+	SoundBuffer* mPacMovement;
+	SoundBuffer* mGhostChase;
+	SoundBuffer* mGhostFrightened;
+	SoundBuffer* mGhostEaten;
+	SoundBuffer* mGhostRespawn;
+	SoundBuffer* mPacDeath;
+
 
 
 	// stack vars

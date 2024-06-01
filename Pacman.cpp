@@ -149,7 +149,7 @@ bool Pacman::isValidDirection(bool onIntersection, const Vector2i desiredDirecti
 
 // purpose: alternates between 2 mouth states based on how many frames elapsed; adjusts texture to display accordingly
 // returns true if pacman has died and the full death animation has elapsed, false otherwise
-bool Pacman::animate(int frameCounter)
+bool Pacman::animate(int frameCounter, Sound& pacDeathSound)
 {
 	bool finishedAnimation = false;
 
@@ -172,6 +172,11 @@ bool Pacman::animate(int frameCounter)
 			else if (mIndex < 5) // valid range for animation is between indexes 5-16
 			{
 				std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 1 second then execute death animation
+
+				// play pac death sound
+				pacDeathSound.play();
+				pacDeathSound.setLoop(false);
+
 				mIndex = 5;
 			}
 			else if (mIndex < 16)

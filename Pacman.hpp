@@ -42,7 +42,7 @@ public:
 
 	bool isValidDirection(bool onIntersection, const Vector2i desiredDirection, GameMap& theMap) const;
 
-	bool animate(int frameCounter); // loops through mouth positions
+	bool animate(int frameCounter, Sound& pacDeathSound); // loops through mouth positions
 
 	void changeDirection(Vector2i& currDir, const Vector2i& newDir); // checks current and new direction and rotates accordingly
 

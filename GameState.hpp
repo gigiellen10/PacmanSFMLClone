@@ -68,6 +68,8 @@ using sf::RectangleShape;
 using sf::Vector2i;
 using sf::IntRect;
 using sf::Music;
+using sf::Sound;
+using sf::SoundBuffer;
 using sf::seconds;
 
 // commonly used directions that entities can travel along map

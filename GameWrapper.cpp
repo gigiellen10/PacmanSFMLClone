@@ -19,14 +19,33 @@ GameWrapper::GameWrapper()
     mGhostAnimation = new Texture;
     mLogoHeader = new Texture;
     mFont = new Font; // pacman font used for score and text display
-    mMusic = new Music;
+
+    // create and load audio
+
+    mTempSound = new Sound;
+
+    mIntroMusic = new SoundBuffer;
+    mPacMovement = new SoundBuffer;
+    mGhostChase = new SoundBuffer;
+    mGhostFrightened = new SoundBuffer;
+    mGhostEaten = new SoundBuffer;
+    mGhostRespawn = new SoundBuffer;
+    mPacDeath = new SoundBuffer;
 
     // load textures and fonts from files
     mPacmanAnimation->loadFromFile("assets\\pacAnimationStates.png");
     mGhostAnimation->loadFromFile("assets\\GhostStates.png");
     mLogoHeader->loadFromFile("assets\\pacmanHeader.png");
     mFont->loadFromFile("assets\\emulogic-font\\Emulogic-zrEw.ttf");
-    mMusic->openFromFile("assets\\pacAudio.wav");
+   
+    // preload sounds from files into sound buffers
+    mIntroMusic->loadFromFile("assets\\pacManSounds\\pacIntroMusic.wav");
+    mPacMovement->loadFromFile("assets\\pacManSounds\\pacMouthMovementSound.wav");
+    mGhostChase->loadFromFile("assets\\pacManSounds\\ghostChaseSound.wav");
+    mGhostFrightened->loadFromFile("assets\\pacManSounds\\ghostFrightened.wav");
+    mGhostEaten->loadFromFile("assets\\pacManSounds\\ateGhostSound.wav");
+    mGhostRespawn->loadFromFile("assets\\pacManSounds\\ghostEyesBackToPrison.wav");
+    mPacDeath->loadFromFile("assets\\pacManSounds\\pacDeath.wav");
 
     mPac = new Pacman(mPacmanAnimation);
     
@@ -72,7 +91,15 @@ GameWrapper::~GameWrapper()
     delete mFont;
     delete mPac;
     delete mMap;
-    delete mMusic;
+    
+    delete mTempSound;
+    delete mIntroMusic;
+    delete mPacMovement;
+    delete mGhostChase;
+    delete mGhostFrightened;
+    delete mGhostEaten;
+    delete mGhostRespawn;
+    delete mPacDeath;
 
     for (int i = 4; i < 4; ++i)
     {
@@ -124,7 +151,6 @@ void GameWrapper::reset(int gameStatus)
    
     if (gameStatus == 4) // play again so reset score, level, and music 
     {
-        mMusic->setPlayingOffset(seconds(24.f)); // set to intro music - will play for 4 seconds
         mLevel = 1;
         mScore = 0;
     }
@@ -245,6 +271,9 @@ void GameWrapper::runGame(int* gameWonOrLoss)
                 mGhosts[2]->setSpeed(0.f);
                 mGhosts[3]->setSpeed(0.f);
 
+                // set audio
+                mTempSound->setBuffer(*mPacDeath);
+           
                 *gameWonOrLoss = 3; // return loss value outside of function
 
             }
@@ -257,7 +286,6 @@ void GameWrapper::runGame(int* gameWonOrLoss)
         for (auto i : mGhosts)
         {
             
-
             if (i->getIsAlive() && mPac->getIsAlive() && playing != false)
             {
                
@@ -288,7 +316,7 @@ void GameWrapper::runGame(int* gameWonOrLoss)
         }
 
         /* ANIMATE CHARACTERS */
-        pacAnimationDone = mPac->animate(mFrameCounter);
+        pacAnimationDone = mPac->animate(mFrameCounter, *mTempSound);
 
         if (pacAnimationDone)
             playing = false; // pac death sequence completed, break out of gameloop
@@ -318,8 +346,7 @@ void GameWrapper::runGame(int* gameWonOrLoss)
 
         ++mFrameCounter; // increment # frames 
     }
-
-    //std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 3 seconds before displaying won/loss screen
+    
 }
 
 // purpose: displays the pacman start screen with retro look; allows player to start or exit
@@ -347,17 +374,13 @@ int GameWrapper::displayStartScreen(const Clock& timeElapsed)
 
     arrow.setRotation(90);
 
-    mMusic->play(); // start music
-    mMusic->setPlayingOffset(seconds(24.f)); // start of theme
+    // set intro audio
+    mTempSound->setBuffer(*mIntroMusic);
+    mTempSound->setLoop(true); // loop while displaying intro screen
+    mTempSound->play();
     
     while (mWindow->isOpen() && userDecision == undecided)
     {
-        if ((int)timeElapsed.getElapsedTime().asSeconds() % 6 == 0)
-        {
-            mMusic->play();
-            mMusic->setPlayingOffset(seconds(24.f)); // reset to start of theme
-        }
-
         Event event;
 
         while (mWindow->pollEvent(event)) // if the game window was selected to be closed
@@ -411,7 +434,7 @@ int GameWrapper::displayStartScreen(const Clock& timeElapsed)
 
     std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep then exit 
 
-    mMusic->pause(); // pause music before exiting
+    mTempSound->stop(); // stop intro music before exiting
 
     return userDecision;
 }
