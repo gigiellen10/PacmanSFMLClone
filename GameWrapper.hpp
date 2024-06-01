@@ -26,7 +26,7 @@ public:
 	// main game methods
 	void runGame(int* gameWonOrLoss);
 	void reset(int gameStatus);
-	int displayStartScreen();
+	int displayStartScreen(const Clock& timeElapsed);
 	int displayLostScreen();
 	int displayWonScreen();
 
@@ -42,6 +42,7 @@ private:
 	Texture* mGhostAnimation;
 	Texture* mLogoHeader;
 	Font* mFont;
+	Music* mMusic;
 
 
 	// stack vars

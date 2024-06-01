@@ -20,8 +20,10 @@ int main()
     // create gameWrapper here 
     GameWrapper theGame;
 
+    Clock timeSinceStart; // used to gauge how long to play start music
+
     /* DISPLAY PACMAN MENU BEFORE ENTERING MAIN LOOP */
-    gameStatus = static_cast<GameState>(theGame.displayStartScreen()); 
+    gameStatus = static_cast<GameState>(theGame.displayStartScreen(timeSinceStart)); 
 
 
     while (gameStatus == inProgress || gameStatus == playAgain)

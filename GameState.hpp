@@ -67,6 +67,8 @@ using sf::Texture;
 using sf::RectangleShape;
 using sf::Vector2i;
 using sf::IntRect;
+using sf::Music;
+using sf::seconds;
 
 // commonly used directions that entities can travel along map
 namespace Direction

@@ -337,11 +337,6 @@ void Ghost::checkModeTimer(int level, const Vector2i& pacPos, GameMap& theMap)
 		mMode = 2; // alternate to scatter mode
 		mIsSwitchingModes = true;
 
-		if (mAIType == 4 && this->closeToPac(pacPos, 8))
-		{
-			cout << "close to pac and switching modes from chase to scatter" << endl;
-		}
-
 		mSpeed = GHOST_CHASE_SPEED;
 
 		mModeClock.restart();
