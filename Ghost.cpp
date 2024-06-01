@@ -520,6 +520,44 @@ void Ghost::frightened(int level)
 		mModeTimer = 3;
 }
 
+// purpose: adjusts the sounds playing for the ghosts
+// returns: bool indicating if the sound was switched during the function call
+void Ghost::playSounds(bool pacIsAlive)
+{
+	if (!mIsAlive
+		&& mGhostSounds->getBuffer() != mRespawnBuff)
+	{
+		mGhostSounds->setBuffer(*mRespawnBuff); // respawn sound effects
+		mGhostSounds->setVolume(100);
+	}
+	else if (mMode == 3 
+		&& mGhostSounds->getBuffer() != mFrightenedBuff)
+	{
+		mGhostSounds->setBuffer(*mFrightenedBuff); // frightened sound effects
+		mGhostSounds->setVolume(60);
+	}
+	else if (mMode == 1
+		&& mGhostSounds->getBuffer() != mChaseBuff)
+	{
+		mGhostSounds->setBuffer(*mChaseBuff); // chase sound effects
+		mGhostSounds->setVolume(60);
+	}
+
+	// if the ghosts are alive and music is not already playing, set to play
+	if (pacIsAlive 
+		&& mGhostSounds->getStatus() != SoundSource::Status::Playing)
+	{
+		mGhostSounds->play(); // play sounds if not already playing
+	}
+	
+	
+	if (!pacIsAlive) // if pac is dead, stop playing music
+	{
+		mGhostSounds->stop();
+	}
+
+}
+
 
 
 

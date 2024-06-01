@@ -10,13 +10,14 @@ class Ghost : public Character
 {
 public:
 
-	~Ghost() {
-		if (mSpeed == 200)
-		{
-			cout << "speed is 200" << endl;
-		}
+	~Ghost()
+	{
+		delete mGhostSounds;
+		delete mChaseBuff;
+		delete mFrightenedBuff;
+		delete mRespawnBuff;
 	}
-	
+
 	// constructor
 	Ghost(const Texture* ghostTexture, float spawnX, float spawnY, int AI)
 		: Character(ghostTexture, spawnX, spawnY) {
@@ -31,6 +32,19 @@ public:
 		mPrisonDelay = 1 * AI; // establish a prison release time delay - may change so red leaves first
 		mSpawnTile = Vector2i(getColIndex(Vector2f(spawnX, spawnY)), getRowIndex(Vector2f(spawnX, spawnY)));
 		mIsSwitchingModes = false; 
+
+		mGhostSounds = new Sound;
+		mChaseBuff = new SoundBuffer;
+		mFrightenedBuff = new SoundBuffer;
+		mRespawnBuff = new SoundBuffer;
+
+		mChaseBuff->loadFromFile("assets\\pacManSounds\\ghostChaseSound.wav");
+		mFrightenedBuff->loadFromFile("assets\\pacManSounds\\ghostFrightened.wav");
+		mRespawnBuff->loadFromFile("assets\\pacManSounds\\ghostEyesBackToPrison.wav");
+
+		mGhostSounds->setBuffer(*mChaseBuff); // play chase sounds initially
+		mGhostSounds->setLoop(true); // should loop
+		mGhostSounds->setVolume(50);
 
 		// set texture rectangle based on ghost AI
 		if (AI == 1) // blue
@@ -97,6 +111,8 @@ public:
 	
 	void frightened(int level);
 
+	void playSounds(bool pacIsAlive);
+
 
 private:
 	int mMode; // 1 - chase mode, 2 - scatter mode, 3 - frightened mode (run away from pac) 
@@ -108,6 +124,13 @@ private:
 	int mModeTimer; // controlls how long ghost is in a certain mode based on level or power pelet
 	Clock mModeClock; // reset each time a ghost's mode is switched
 	bool mIsSwitchingModes; // if the ghost switches modes on an iteration of game loop
+
+	// audio controlls
+	Sound* mGhostSounds; // switches between chase, frightened and eaten sounds; only stops looping when game won or over
+
+	SoundBuffer* mChaseBuff;
+	SoundBuffer* mFrightenedBuff;
+	SoundBuffer* mRespawnBuff;
 };
 
 

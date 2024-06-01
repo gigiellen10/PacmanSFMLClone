@@ -45,13 +45,11 @@ private:
 
 	// audio sound and buffers
 	Sound* mTempSound; // overwritten for sounds on the fly
+	Sound* mPacSounds;
 
 	SoundBuffer* mIntroMusic;
-	SoundBuffer* mPacMovement;
-	SoundBuffer* mGhostChase;
-	SoundBuffer* mGhostFrightened;
 	SoundBuffer* mGhostEaten;
-	SoundBuffer* mGhostRespawn;
+	SoundBuffer* mPacMovement;
 	SoundBuffer* mPacDeath;
 
 

@@ -163,15 +163,16 @@ bool Pacman::animate(int frameCounter, Sound& pacDeathSound)
 			else
 				++mIndex;
 		}
+		else if (mJustDied) // if died within last frame
+		{
+			mIndex = 0; // start as whole circle
+			
+		}
 		else if (!mIsAlive && frameCounter % 2 < 1) // pac is dead 
 		{
-			if (mJustDied) // if died within last frame
+			
+			if (mIndex < 5) // valid range for animation is between indexes 5-16
 			{
-				mIndex = 0; // start as whole circle
-			}
-			else if (mIndex < 5) // valid range for animation is between indexes 5-16
-			{
-				std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 1 second then execute death animation
 
 				// play pac death sound
 				pacDeathSound.play();

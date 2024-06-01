@@ -23,14 +23,11 @@ GameWrapper::GameWrapper()
     // create and load audio
 
     mTempSound = new Sound;
-
+    mPacSounds = new Sound;
     mIntroMusic = new SoundBuffer;
     mPacMovement = new SoundBuffer;
-    mGhostChase = new SoundBuffer;
-    mGhostFrightened = new SoundBuffer;
-    mGhostEaten = new SoundBuffer;
-    mGhostRespawn = new SoundBuffer;
     mPacDeath = new SoundBuffer;
+    mGhostEaten = new SoundBuffer;
 
     // load textures and fonts from files
     mPacmanAnimation->loadFromFile("assets\\pacAnimationStates.png");
@@ -41,11 +38,8 @@ GameWrapper::GameWrapper()
     // preload sounds from files into sound buffers
     mIntroMusic->loadFromFile("assets\\pacManSounds\\pacIntroMusic.wav");
     mPacMovement->loadFromFile("assets\\pacManSounds\\pacMouthMovementSound.wav");
-    mGhostChase->loadFromFile("assets\\pacManSounds\\ghostChaseSound.wav");
-    mGhostFrightened->loadFromFile("assets\\pacManSounds\\ghostFrightened.wav");
-    mGhostEaten->loadFromFile("assets\\pacManSounds\\ateGhostSound.wav");
-    mGhostRespawn->loadFromFile("assets\\pacManSounds\\ghostEyesBackToPrison.wav");
     mPacDeath->loadFromFile("assets\\pacManSounds\\pacDeath.wav");
+    mGhostEaten->loadFromFile("assets\\pacManSounds\\ateGhostSound.wav");
 
     mPac = new Pacman(mPacmanAnimation);
     
@@ -93,12 +87,13 @@ GameWrapper::~GameWrapper()
     delete mMap;
     
     delete mTempSound;
+    
+    delete mPacSounds;
     delete mIntroMusic;
     delete mPacMovement;
-    delete mGhostChase;
-    delete mGhostFrightened;
+    
     delete mGhostEaten;
-    delete mGhostRespawn;
+    
     delete mPacDeath;
 
     for (int i = 4; i < 4; ++i)
@@ -161,8 +156,8 @@ void GameWrapper::runGame(int* gameWonOrLoss)
 {
     int typePeletEaten = 0; // if pac eats a pelet
         
-    bool pacAnimationDone = false, 
-        playing = true; // controlls main game loop, when runGame() returns
+    bool pacAnimationDone = false,
+        playing = true;  // controlls main game loop, when runGame() returns
 
     /* INIT MAIN GAME VARS */
 
@@ -172,10 +167,12 @@ void GameWrapper::runGame(int* gameWonOrLoss)
 
     Time deltaTime;
     
+    mPacSounds->setBuffer(*mPacMovement); // set pacman sound buffer
 
+    
     /* LOOP THAT RUNS MAIN GAME */
 
-    while (mWindow->isOpen() && playing /*&& pacAnimationDone*/)
+    while (mWindow->isOpen() && playing)
     {
         vector<FloatRect> ghostPositions; // used to check pacman death
 
@@ -256,6 +253,12 @@ void GameWrapper::runGame(int* gameWonOrLoss)
                 i->setIsAlive(false);
                 i->setJustDied(true);
                 mScore += 100; // update pac score, eating ghost = +100 pts
+
+                // play ghost eaten sound!
+                mTempSound->setBuffer(*mGhostEaten);
+                mTempSound->setLoop(false);
+                mTempSound->play();
+
             }
             else if (i->getIsAlive() && mPac->getIsAlive() && i->getMode() != 3
                 && mPac->isDeath(vector<FloatRect>(ghostPositions)))
@@ -272,7 +275,7 @@ void GameWrapper::runGame(int* gameWonOrLoss)
                 mGhosts[3]->setSpeed(0.f);
 
                 // set audio
-                mTempSound->setBuffer(*mPacDeath);
+                mPacSounds->setBuffer(*mPacDeath);
            
                 *gameWonOrLoss = 3; // return loss value outside of function
 
@@ -302,6 +305,7 @@ void GameWrapper::runGame(int* gameWonOrLoss)
             }
         }
 
+
         // is pac ate all the pelets, won the game!
         if (mMap->getNumPelets() == 0)
         {
@@ -315,17 +319,29 @@ void GameWrapper::runGame(int* gameWonOrLoss)
             *gameWonOrLoss = 2;
         }
 
-        /* ANIMATE CHARACTERS */
-        pacAnimationDone = mPac->animate(mFrameCounter, *mTempSound);
+        /* ANIMATE AND APPLY SOUND TO CHARACTERS */
+        pacAnimationDone = mPac->animate(mFrameCounter, *mPacSounds);
+
+        if (mPac->getJustDied())
+            std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 1 second then execute death animation
+
+        // play pac mouth animation sounds
+        if (mPac->getSpeed() != 0 // if pac not stopped, not on spawn pt and isn't already playing music
+            && mPac->getPosition() != Vector2f(PAC_SPAWN_X, PAC_SPAWN_Y)
+            && mPacSounds->getStatus() != sf::SoundSource::Status::Playing)
+        {
+            mPacSounds->play();
+        }
 
         if (pacAnimationDone)
             playing = false; // pac death sequence completed, break out of gameloop
 
         for (auto i : mGhosts)
         {
-            
             i->animate(mFrameCounter, *mMap);
-            
+
+            i->playSounds(mPac->getIsAlive());
+
         }
 
         /* CLEAR WINDOW AND DRAW NEW GAMESTATE */
@@ -337,12 +353,16 @@ void GameWrapper::runGame(int* gameWonOrLoss)
         // draw characters
         mWindow->draw(*mPac);
 
-        for (auto i : mGhosts)
+        // only display ghosts when pac is alive!
+        if (mPac->getIsAlive())
         {
-            mWindow->draw(*i);
+            for (auto i : mGhosts)
+            {
+                mWindow->draw(*i);
+            }
         }
 
-        mWindow->display();
+        mWindow->display(); // display new gamestate
 
         ++mFrameCounter; // increment # frames 
     }

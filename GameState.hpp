@@ -31,7 +31,7 @@ File purpose: include #define constants and common SFML libraries needed through
 #define GHOST_SPAWN_Y 495 
 
 #define GHOST_CHASE_SPEED 200
-#define GHOST_FRIGHT_SPEED 210
+#define GHOST_FRIGHT_SPEED 175
 
 
 #include <SFML/Graphics.hpp>
@@ -45,6 +45,7 @@ File purpose: include #define constants and common SFML libraries needed through
 #include <thread>
 #include <chrono>
 
+// necessary using statments to refplace std:: and sf::
 using std::string;
 using std::cout;
 using std::endl;
@@ -70,6 +71,7 @@ using sf::IntRect;
 using sf::Music;
 using sf::Sound;
 using sf::SoundBuffer;
+using sf::SoundSource;
 using sf::seconds;
 
 // commonly used directions that entities can travel along map
@@ -85,6 +87,3 @@ namespace Direction
 void scoreToScreen(RenderWindow& window, Font &font, int currScore);
 Vector2f operator /(const Vector2f& lhs, double rhs);
 double length(const Vector2i& vector1, const Vector2i& vector2);
-//int displayWonScreen(int score, RenderWindow& window, Font& font);
-//int displayLostScreen(RenderWindow& window, Font& font);
-//int displayStartScreen(RenderWindow& window, Texture* titleTexture, Font& pacFont);
