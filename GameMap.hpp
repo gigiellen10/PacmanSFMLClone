@@ -24,7 +24,7 @@ public:
 
 
 	// display function for rendering to screen
-	void displayMap(RenderWindow& displayWindow, Font& font, int currScore);
+	void displayMap(RenderWindow& displayWindow, Font& font, int currScore, int level);
 
 	// adjusting which pelets displayed on screen if pac eats them; returns true if a pelet was eaten
 	int updatePelets(const FloatRect& pacGlobBounds, int frameCounter);

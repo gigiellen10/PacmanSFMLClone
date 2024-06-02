@@ -68,7 +68,7 @@ GameMap::GameMap(int mapOutline[MAP_HEIGHT][MAP_WIDTH])
 }
 
 // display function for rendering to screen 
-void GameMap::displayMap(sf::RenderWindow &displayWindow, Font &font, int currScore)
+void GameMap::displayMap(sf::RenderWindow &displayWindow, Font &font, int currScore, int level)
 {
 	for (int i = 0; i < MAP_HEIGHT; ++i)
 	{
@@ -88,7 +88,7 @@ void GameMap::displayMap(sf::RenderWindow &displayWindow, Font &font, int currSc
 	displayWindow.draw(mGate);
 
 	// display score 
-	scoreToScreen(displayWindow, font, currScore);
+	scoreAndLevelToScreen(displayWindow, font, currScore, level);
 }
 
 // compile-time polymorphism...yay

@@ -84,6 +84,6 @@ namespace Direction
 	const Vector2i STOP(0, 0);
 }
 
-void scoreToScreen(RenderWindow& window, Font &font, int currScore);
+void scoreAndLevelToScreen(RenderWindow& window, Font &font, int currScore, int level);
 Vector2f operator /(const Vector2f& lhs, double rhs);
 double length(const Vector2i& vector1, const Vector2i& vector2);

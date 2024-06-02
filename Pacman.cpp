@@ -156,7 +156,7 @@ bool Pacman::animate(int frameCounter, Sound& pacDeathSound)
 	// if pacman is actively moving and not at the spawn point; or not alive
 	if ((mSpeed != 0.f && this->getPosition() != Vector2f(PAC_SPAWN_X, PAC_SPAWN_Y)) || !mIsAlive) 
 	{
-		if (mIsAlive && frameCounter % 2 < 1) // alternate between open and closed mouth states
+		if (mIsAlive) // alternate between open and closed mouth states
 		{
 			if (mIndex > 4) // so does not go outside bounds of array (size 5)
 				mIndex = 0;

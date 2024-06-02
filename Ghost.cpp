@@ -534,7 +534,7 @@ void Ghost::playSounds(bool pacIsAlive)
 		&& mGhostSounds->getBuffer() != mFrightenedBuff)
 	{
 		mGhostSounds->setBuffer(*mFrightenedBuff); // frightened sound effects
-		mGhostSounds->setVolume(60);
+		mGhostSounds->setVolume(25);
 	}
 	else if (mMode == 1
 		&& mGhostSounds->getBuffer() != mChaseBuff)

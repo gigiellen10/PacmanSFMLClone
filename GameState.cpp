@@ -5,13 +5,19 @@ File purpose: contains various general functions that were not methods of any cl
 #include "GameState.hpp"
 
 // displays pacman's current score fancily to the upper left of screen 
-void scoreToScreen(RenderWindow& window, Font& font, int currScore)
+void scoreAndLevelToScreen(RenderWindow& window, Font& font, int currScore, int level)
 {
-	Text myText(std::to_string(currScore), font, 60); // set string to currScore and font passed in
-	myText.setFillColor(Color::White);
-	myText.setPosition(20.f, 13.f);
+	Text ScoreText("score " + std::to_string(currScore), font, 60),  // set string to currScore and font passed in
+		levelText("level " + std::to_string(level), font, 60);
+
+	levelText.setFillColor(Color::White);
+	ScoreText.setFillColor(Color::White);
+
+	levelText.setPosition(1460.f, 13.f);
+	ScoreText.setPosition(20.f, 13.f);
 	
-	window.draw(myText); // display to window
+	window.draw(ScoreText); // display to window
+	window.draw(levelText);
 }
 
 

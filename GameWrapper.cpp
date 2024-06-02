@@ -9,7 +9,7 @@ GameWrapper::GameWrapper()
 {
     // for init ghosts
     int AI = 1,
-        ghostXCoord = 855;
+        ghostXCoord = 855; // pixel starting pos x Coordinate for ghosts spawn
 
     // allocate and init heap mem
     mWindow = new RenderWindow(VideoMode(MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS), "Genevieve's Pacman Clone!!");
@@ -183,6 +183,7 @@ void GameWrapper::runGame(int* gameWonOrLoss)
             if (event.type == Event::Closed)
             {
                 *gameWonOrLoss = 0; // exit game loop
+                mPacSounds->stop();
                 mWindow->close();
             }
         }
@@ -233,7 +234,7 @@ void GameWrapper::runGame(int* gameWonOrLoss)
             mScore += 50; // power pelet is 50 pts
 
 
-            // initiate frightened mode for ghosts if not on spawn point
+             // initiate frightened mode for ghosts if not on spawn point
             for (auto i : mGhosts)
             {
                 if (!i->onSpawnPoint())
@@ -306,19 +307,6 @@ void GameWrapper::runGame(int* gameWonOrLoss)
         }
 
 
-        // is pac ate all the pelets, won the game!
-        if (mMap->getNumPelets() == 0)
-        {
-            ++mLevel; // increment level 
-            playing = false; // exit main loop 
-        }
-
-        if (mLevel > 10) // 10th level is last level, player wins after level 10
-        {
-            playing = false; // break out of game loop
-            *gameWonOrLoss = 2;
-        }
-
         /* ANIMATE AND APPLY SOUND TO CHARACTERS */
         pacAnimationDone = mPac->animate(mFrameCounter, *mPacSounds);
 
@@ -326,7 +314,7 @@ void GameWrapper::runGame(int* gameWonOrLoss)
             std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 1 second then execute death animation
 
         // play pac mouth animation sounds
-        if (mPac->getSpeed() != 0 // if pac not stopped, not on spawn pt and isn't already playing music
+        if (typePeletEaten != 0 && mPac->getSpeed() != 0 // if pac not stopped, not on spawn pt and isn't already playing music
             && mPac->getPosition() != Vector2f(PAC_SPAWN_X, PAC_SPAWN_Y)
             && mPacSounds->getStatus() != sf::SoundSource::Status::Playing)
         {
@@ -348,7 +336,7 @@ void GameWrapper::runGame(int* gameWonOrLoss)
         mWindow->clear();
 
         // display map
-        mMap->displayMap(*mWindow, *mFont, mScore);
+        mMap->displayMap(*mWindow, *mFont, mScore, mLevel);
 
         // draw characters
         mWindow->draw(*mPac);
@@ -364,8 +352,25 @@ void GameWrapper::runGame(int* gameWonOrLoss)
 
         mWindow->display(); // display new gamestate
 
+        /* CHECK WON OR LOSS HERE */
+
+        // is pac ate all the pelets, won the game!
+        if (mMap->getNumPelets() == 0)
+        {
+            ++mLevel;
+            playing = false; // exit main loop 
+        }
+
+        if (mLevel > 10) // 10th level is last level, player wins after level 10
+        {
+            playing = false; // break out of game loop
+            *gameWonOrLoss = 2;
+        }
+
         ++mFrameCounter; // increment # frames 
     }
+
+    mPacSounds->stop(); // stop pac sounds before exiting gameloop
     
 }
 
