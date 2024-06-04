@@ -1,6 +1,7 @@
 # Pacman Clone
 This project was my first ever graphical application--a remake of the classic Pacman game! With a slightly smaller game maze, this implementation emphisises 
-the various Ghost AI algorithms, backend collision checking, and efficient handling of asychronous events triggered by user input.
+the various Ghost AI algorithms, backend collision checking, and efficient handling of asychronous events triggered by user input. This project was submitted in the 
+Summer 2024 WSU Crimson Game Jam Competition.
 
 ### Link to Demo Video: (link will be posted here).
 
@@ -33,7 +34,7 @@ In the instance of Pacman's death, a death animation sequence is initiated and t
 spawn tile for that particular ghost within the prison box. Once reached, the ghost will idle before exiting and continuing to persue Pacman. 
 
 ## Optimizations
-# Pacman Collision Checking
+### Pacman Collision Checking
 The code that determines Pacman's collision checking was refactored 3 times while developing this game. Originally, Pacman was allowed to go any direction on each
 iteration of the game loop and would be transported back to the center of its previous cell if trying to enter a wall. This proved to be very inefficient as
 Pacman was allowed to change directions multiple times per each cell, and required checking of all surrounding cells. The usage of "intersection cells" was my next 
@@ -43,12 +44,16 @@ reduced the amount of position checks needed throughout gameplay. The last addit
 if Pacman would hit a wall in his current direction of travel. This check was only necessary if a cell was both an intersection cell and a corner, as his speed would 
 need to be reduced to 0 if he were about to run into a wall/corner of the map. 
 
-# Ghost AI
+### Ghost AI
 The Ghost pathfinding AI was originally implemented where the Ghost would select a random route to its target cell. This code was optimized through following
 a "greedy" approach where the shortest path to a particular cell was calculated and selected. As the Ghosts were often targeting Pacman's position, which changes each 
 iteration of the game loop, a Ghost was permitted to make a new direction decision per each new tile it occupied. This code cleaned up the original algorithm, 
 which allowed a ghost to make multiple new directional choices per each cell. Ultimately, these changes allowed the game to run faster and with a smoother graphics
 display.
+
+<img width="243" alt="Screenshot 2024-06-04 at 6 33 05 AM" src="https://github.com/gigiellen10/PacmanSFMLClone/assets/146043259/d0505bfa-d171-4435-a538-01f2d7e1530a">
+Photo: Inky targeting scheme illustrated with blinky (in my version, this targeting scheme is carried out with the position of pinky). Source: Pacman Dossier, 
+https://pacman.holenet.info/#Chapter_3
 
 ## What I Learned
 Being my first ever game, the process of handling the backend implementation while considering how to aesthetically present the application was a great learning 
@@ -58,8 +63,7 @@ bugs since the environment was less controlled than a typical application. This 
 of the game to narrow down where errors were occuring (ex: focusing on the Ghosts and ommiting Pacman code). This project also provided the opportunity to research
 common pathfinding algorithms and weigh the benefits of using one over the other for efficiency. Lastly, this project allowed me to familiarize myself with version
 controll, particularly Git. This project started out as a team project where each member was in charge of one element of the project, which required me to learn how 
-to efficiently collaborate throughout the bulding process and resolve merge conflicts. (Note: all code in this repo is not from the team project portion and was solely
-developed by me). 
+to efficiently collaborate throughout the bulding process and resolve merge conflicts. (Note: all code in this repo is not from the team project portion and was solely developed by me!). 
 
 
 
