@@ -52,6 +52,7 @@ which allowed a ghost to make multiple new directional choices per each cell. Ul
 display.
 
 <img width="243" alt="Screenshot 2024-06-04 at 6 33 05 AM" src="https://github.com/gigiellen10/PacmanSFMLClone/assets/146043259/d0505bfa-d171-4435-a538-01f2d7e1530a">
+
 Photo: Inky targeting scheme illustrated with blinky (in my version, this targeting scheme is carried out with the position of pinky). Source: Pacman Dossier, 
 https://pacman.holenet.info/#Chapter_3
 
