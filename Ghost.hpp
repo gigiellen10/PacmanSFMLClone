@@ -111,7 +111,9 @@ public:
 	
 	void frightened(int level);
 
-	void playSounds(bool pacIsAlive);
+	void playSounds(bool pacIsAlive, GameMap& theMap);
+
+	void stopGhostSounds() { mGhostSounds->stop(); }
 
 
 private:

@@ -3,7 +3,7 @@ This project was my first ever graphical application--a remake of the classic Pa
 the various Ghost AI algorithms, backend collision checking, and efficient handling of asychronous events triggered by user input. This project was submitted in the 
 Summer 2024 WSU Crimson Game Jam Competition.
 
-### Link to Demo Video: (link will be posted here).
+### Link to Demo Video: https://drive.google.com/file/d/1xCM--jWt9Q-ZcJ_3H9mkEfKWEIncUmsQ/view?usp=sharing
 
 ## How it's made:
 ### Tech Used: C++, Graphics: SFML (Simple and Fast Multi-Media Library)

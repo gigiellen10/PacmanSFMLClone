@@ -314,7 +314,7 @@ void GameWrapper::runGame(int* gameWonOrLoss)
             std::this_thread::sleep_for(std::chrono::seconds(1)); // sleep for 1 second then execute death animation
 
         // play pac mouth animation sounds
-        if (typePeletEaten != 0 && mPac->getSpeed() != 0 // if pac not stopped, not on spawn pt and isn't already playing music
+        if (mPac->getSpeed() != 0 // if pac not stopped, not on spawn pt and isn't already playing music
             && mPac->getPosition() != Vector2f(PAC_SPAWN_X, PAC_SPAWN_Y)
             && mPacSounds->getStatus() != sf::SoundSource::Status::Playing)
         {
@@ -328,7 +328,7 @@ void GameWrapper::runGame(int* gameWonOrLoss)
         {
             i->animate(mFrameCounter, *mMap);
 
-            i->playSounds(mPac->getIsAlive());
+            i->playSounds(mPac->getIsAlive(), *mMap);
 
         }
 

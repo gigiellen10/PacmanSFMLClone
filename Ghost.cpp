@@ -522,9 +522,9 @@ void Ghost::frightened(int level)
 
 // purpose: adjusts the sounds playing for the ghosts
 // returns: bool indicating if the sound was switched during the function call
-void Ghost::playSounds(bool pacIsAlive)
+void Ghost::playSounds(bool pacIsAlive, GameMap& theMap)
 {
-	if (!mIsAlive
+	if (!mIsAlive && !inPrisonBox(theMap)
 		&& mGhostSounds->getBuffer() != mRespawnBuff)
 	{
 		mGhostSounds->setBuffer(*mRespawnBuff); // respawn sound effects
@@ -540,7 +540,11 @@ void Ghost::playSounds(bool pacIsAlive)
 		&& mGhostSounds->getBuffer() != mChaseBuff)
 	{
 		mGhostSounds->setBuffer(*mChaseBuff); // chase sound effects
-		mGhostSounds->setVolume(60);
+		mGhostSounds->setVolume(50);
+	}
+	else if (!mIsAlive && inPrisonBox(theMap))
+	{
+		mGhostSounds->stop();
 	}
 
 	// if the ghosts are alive and music is not already playing, set to play
